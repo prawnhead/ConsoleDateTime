@@ -22,3 +22,7 @@ DateTime::~DateTime()
   Serial.println("DateTime constructor");
   #endif
 }
+
+string DateTime::toString() {
+  return "Hello World!";
+}
