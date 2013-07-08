@@ -31,8 +31,12 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="include" />
+			<Add directory="src" />
 		</Compiler>
+		<Unit filename="include/DateTime.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/DateTime.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
