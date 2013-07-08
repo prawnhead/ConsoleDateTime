@@ -23,6 +23,6 @@ DateTime::~DateTime()
   #endif
 }
 
-string DateTime::toString() {
+String DateTime::toString() {
   return "Hello World!";
 }

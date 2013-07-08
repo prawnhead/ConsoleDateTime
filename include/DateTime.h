@@ -3,8 +3,11 @@
 #ifndef ARDUINO
   #include <iostream>
   #include <string>
-  typedef uint8_t byte;
   using namespace std;
+  typedef uint8_t byte;
+  typedef string String;
+#else
+  #include <Arduino.h>
 #endif
 
 class DateTime
@@ -12,7 +15,7 @@ class DateTime
   public:
     DateTime();
     virtual ~DateTime();
-    string toString();
+    String toString();
   protected:
   private:
     byte _year, _month, _day, _hour, _minute, _second;
