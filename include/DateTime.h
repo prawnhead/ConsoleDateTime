@@ -3,6 +3,7 @@
 #ifndef ARDUINO
   #include <iostream>
   #include <string>
+  #define F(X) X
   using namespace std;
   typedef uint8_t byte;
   typedef string String;

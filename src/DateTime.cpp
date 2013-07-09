@@ -8,7 +8,7 @@
 DateTime::DateTime()
 {
   #ifndef ARDUINO
-  cout << "DateTime constructor" << endl;
+  cout << F("DateTime constructor") << endl;
   #else
   Serial.println("DateTime constructor");
   #endif
@@ -17,7 +17,7 @@ DateTime::DateTime()
 DateTime::~DateTime()
 {
   #ifndef ARDUINO
-  cout << "DateTime constructor" << endl;
+  cout << F("DateTime constructor") << endl;
   #else
   Serial.println("DateTime constructor");
   #endif
