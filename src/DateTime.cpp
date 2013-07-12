@@ -35,7 +35,7 @@ DateTime::DateTime(char* date, char* time, DateTime::TimeSource source) {
   _stringValue = 0;
   switch (source) {
     case Compiler:
-      _year = parse((date + 7), 4) - 1900; //epoch.year();
+      _year = parse((date + 7), 4) - MIN_YEAR; //epoch.year();
       _month = monthFromString(date);
       _day = parse((date + 4), 2);
       _hour = parse(time, 2);

@@ -111,6 +111,11 @@ int main()
   testDateTimeValues(1900, 1, 1, 0, 0, 0, 0, DateTime(2000, 1, 1, 0, 0, 60, 0), "Overrange second");
   testDateTimeValues(1900, 1, 1, 0, 0, 0, 0, DateTime(2000, 1, 1, 0, 0, 0, 1000), "Overrange millisecond");
 
+  // __DATE__ format: Mar 12 2013
+  // __TIME__ format: 23:17:51
+  testDateTime(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime("Jan 01 1900", "00:00:00", DateTime::Compiler), "Earliest compiler __DATE__ and __TIME__");
+  testDateTime(DateTime(2155, 12, 31, 23, 59, 59, 0), DateTime("Dec 31 2155", "23:59:59", DateTime::Compiler), "Latest compiler __DATE__ and __TIME__");
+
   cout << "Test add()" << endl;
   testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 999).add(1, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 0, 1, 0), "Seconds rollover");
   testDateTime(DateTime(2000, 1, 1, 0, 0, 59, 0).add(1, DateTime::Second), DateTime(2000, 1, 1, 0, 1, 0, 0), "Minutes rollover");
