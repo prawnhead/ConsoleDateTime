@@ -7,9 +7,7 @@
 
 DateTime::DateTime()
 {
-  _stringValue = 0;
-  _year = _hour = _minute = _second = _millisecond = 0;
-  _month = _day = 1;
+  initialise();
   #ifndef ARDUINO
 //  cout << F("DateTime constructor") << endl;
   #else
@@ -18,14 +16,19 @@ DateTime::DateTime()
 }
 
 DateTime::DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
+  if (year < MIN_YEAR || year > MAX_YEAR) {
+    initialise();
+    return;
+  }
   _stringValue = 0;
-  _year = year - _epochYear;
+  _year = year - MIN_YEAR;
   _month = month;
   _day = day;
   _hour = hour;
   _minute = minute;
   _second = second;
   _millisecond = millisecond;
+  if (!isValid()) initialise();
 }
 
 DateTime::DateTime(char* date, char* time, DateTime::TimeSource source) {
@@ -50,6 +53,13 @@ DateTime::DateTime(char* date, char* time, DateTime::TimeSource source) {
       _millisecond = parse(time + 7, 3);
       break;
   }
+  if (!isValid()) initialise();
+}
+
+void DateTime::initialise() {
+    _stringValue = 0;
+    _year = _hour = _minute = _second = _millisecond = 0;
+    _month = _day = 1;
 }
 
 DateTime::~DateTime()
@@ -68,7 +78,7 @@ boolean DateTime::isLeapYear() const {
 }
 
 int DateTime::year() const {
-  return _year + _epochYear;
+  return _year + MIN_YEAR;
 }
 
 byte DateTime::month() const {
@@ -468,4 +478,18 @@ byte DateTime::monthFromString(char* string) {
       break;
   }
   return 0;
+}
+
+boolean DateTime::isValid() {
+  // all years are valid (0 - 255) = (1900 - 2155)
+  if (_month == 0) return false;
+  if (_month > MONTHS_PER_YEAR) return false;
+  if (_day == 0) return false;
+  if (_day > daysInMonth()) return false; // month must be checked prior to calling daysInMonth()
+  if (_hour > (HOURS_PER_DAY - 1)) return false;
+  if (_minute > (MINUTES_PER_HOUR - 1)) return false;
+  if (_second > (SECONDS_PER_MINUTE - 1)) return false;
+  if (_millisecond < 0) return false;
+  if (_millisecond > (MILLISECONDS_PER_SECOND - 1)) return false;
+  return true;
 }

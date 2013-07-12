@@ -20,6 +20,8 @@
 #define MINUTES_PER_HOUR 60
 #define HOURS_PER_DAY 24
 #define MONTHS_PER_YEAR 12
+#define MIN_YEAR 1900
+#define MAX_YEAR 2155
 
 const char monthNames[] PROGMEM = "Error\0January\0February\0March\0April\0May\0June\0July\0August\0September\0October\0November\0December";
 const byte monthNameIndex[] = {0, 6, 14, 23, 29, 35, 39, 44, 49, 56, 66, 74, 83};
@@ -38,6 +40,7 @@ class DateTime
     DateTime();
     DateTime(char* date, char* time, DateTime::TimeSource source); // Compiler or GPS strings
     DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
+    void initialise();
     virtual ~DateTime();
 
     int year() const;
@@ -85,7 +88,6 @@ class DateTime
     int _millisecond;
     String* _stringValue;
   private:
-    static const int _epochYear = 1900;
     String& getProgMemString(const char *progMemString, byte index);
   #ifndef ARDUINO
     char* intToString(int value);
@@ -93,6 +95,7 @@ class DateTime
     int parse(char number);
     int parse(char* number, int characters);
     byte monthFromString(char* string);
+    boolean isValid();
 };
 
 #endif // DATETIME_H
