@@ -7,16 +7,18 @@
 
 DateTime::DateTime()
 {
+  _stringValue = 0;
   _year = _hour = _minute = _second = _millisecond = 0;
   _month = _day = 1;
   #ifndef ARDUINO
-  cout << F("DateTime constructor") << endl;
+//  cout << F("DateTime constructor") << endl;
   #else
   Serial.println("DateTime constructor");
   #endif
 }
 
 DateTime::DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
+  _stringValue = 0;
   _year = year - _epochYear;
   _month = month;
   _day = day;
@@ -27,6 +29,7 @@ DateTime::DateTime(int year, int month, int day, int hour, int minute, int secon
 }
 
 DateTime::DateTime(char* date, char* time, DateTime::TimeSource source) {
+  _stringValue = 0;
   switch (source) {
     case Compiler:
       _year = parse((date + 7), 4) - 1900; //epoch.year();
@@ -52,7 +55,7 @@ DateTime::DateTime(char* date, char* time, DateTime::TimeSource source) {
 DateTime::~DateTime()
 {
   #ifndef ARDUINO
-  cout << F("DateTime destructor") << endl;
+//  cout << F("DateTime destructor") << endl;
   #else
   Serial.println("DateTime destructor");
   #endif
@@ -104,7 +107,7 @@ byte DateTime::second() const {
   return _second;
 }
 
-unsigned int DateTime::millisecond() const {
+int DateTime::millisecond() const {
   return _millisecond;
 }
 
@@ -121,18 +124,18 @@ DateTime::DayOfWeek DateTime::dayOfWeek() const {
   return (DateTime::DayOfWeek)(sum % 7 + 1);
 }
 
-void DateTime::add(int interval, Period period) {
+DateTime& DateTime::add(int interval, Period period) {
   // Should accept a positive or negative interval for any period.
   int newValue = 0;
   if (period == Millisecond) {
     int magnitude = _millisecond + interval;
-    interval = magnitude / MILLISECONDS_PER_SECOND;
+    interval = magnitude / MILLISECONDS_PER_SECOND; // carry value
     _millisecond = magnitude % MILLISECONDS_PER_SECOND;
     if (_millisecond < 0) {
       _millisecond += MILLISECONDS_PER_SECOND;
       interval -= 1;
     }
-    if (interval != 0) period = Second;
+    if (interval != 0) period = Second; // carry required
   }
   if (period == Second) {
     int magnitude = _second + interval;
@@ -201,6 +204,7 @@ void DateTime::add(int interval, Period period) {
     if (interval != 0) period = Year;
   }
   if (period == Year) _year += interval;
+  return *this;
 }
 
 byte DateTime::daysInMonth() {
@@ -335,9 +339,7 @@ boolean DateTime::operator >= (const DateTime &other) const {
 
 String& DateTime::toString() {
   //http://arduino.cc/en/Reference/StringObject
-  static String* output;
-  if (output) delete(output);
-  output = new String();
+  String* output = new String();
   *output += intToString(year());
   *output += '-';
   if (_month < 10) *output += '0';
@@ -358,7 +360,10 @@ String& DateTime::toString() {
   if (_millisecond < 100) *output += '0';
   if (_millisecond < 10) *output += '0';
   *output += intToString(_millisecond);
-  return *output;
+
+  delete(_stringValue);
+  _stringValue = output;
+  return *_stringValue;
 }
 
 // You would expect this method to be static, but this would cause
@@ -398,10 +403,9 @@ String& DateTime::dayOfWeekToShortString(DayOfWeek day) {
 }
 
 String& DateTime::getProgMemString(const char *progArray, byte index) {
-  static String* output;
-  delete(output);
+  delete(_stringValue);
 #ifndef ARDUINO // Standard C++ code
-  output = new String(progArray + index);
+  _stringValue = new String(progArray + index);
 #else           // Arduino code
   // This function would be far simpler if the String() constructor
   // could accept a pointer to program memory!
@@ -410,7 +414,7 @@ String& DateTime::getProgMemString(const char *progArray, byte index) {
   strcpy_P(ramBuffer, progMemCString);
   output = new String(ramBuffer);
 #endif
-  return *output;
+  return *_stringValue;
 }
 
 #ifndef ARDUINO

@@ -50,12 +50,12 @@ class DateTime
     byte minuteTens() const;
     byte minuteUnits() const;
     byte second() const;
-    unsigned int millisecond() const;
+    int millisecond() const;
 
     DateTime::DayOfWeek dayOfWeek() const;
     boolean isLeapYear() const;
 
-    void add(int interval, Period period);
+    DateTime& add(int interval, Period period);
     byte daysInMonth();
     long intervalTo(const DateTime other, Period period);
     unsigned long totalMilliseconds() const;
@@ -75,13 +75,15 @@ class DateTime
     String& monthToShortString();
     String& monthToShortString(int month);
     String& dayOfWeekToString();
-    String& dayOfWeekToString(DayOfWeek day);
+    String& dayOfWeekToString(enum DayOfWeek day);
     String& dayOfWeekToShortString();
     String& dayOfWeekToShortString(DayOfWeek day);
+
   protected:
     byte _year; // 0 = 1900. 255 = 2155;
     byte _month, _day, _hour, _minute, _second;
-    unsigned int _millisecond;
+    int _millisecond;
+    String* _stringValue;
   private:
     static const int _epochYear = 1900;
     String& getProgMemString(const char *progMemString, byte index);
