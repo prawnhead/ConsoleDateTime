@@ -28,6 +28,7 @@ DateTime::DateTime(int year, int month, int day, int hour, int minute, int secon
   _minute = minute;
   _second = second;
   _millisecond = millisecond;
+  _daysAdjusted = 0;
   if (!isValid()) initialise();
 }
 
@@ -53,12 +54,13 @@ DateTime::DateTime(char* date, char* time, DateTime::TimeSource source) {
       _millisecond = parse(time + 7, 3);
       break;
   }
+  _daysAdjusted = 0;
   if (!isValid()) initialise();
 }
 
 void DateTime::initialise() {
     _stringValue = 0;
-    _year = _hour = _minute = _second = _millisecond = 0;
+    _year = _hour = _minute = _second = _millisecond = _daysAdjusted = 0;
     _month = _day = 1;
 }
 
@@ -72,9 +74,15 @@ DateTime::~DateTime()
 }
 
 boolean DateTime::isLeapYear() const {
-  //http://en.wikipedia.org/wiki/Leap_year
-  int year = this->year();
-  return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
+  return isLeapYear(year());
+}
+
+boolean DateTime::isLeapDay() const {
+  return _month == 2 && _day == 29;
+}
+
+boolean DateTime::isLastDayOfMonth() const {
+  return (_day == daysInMonth());
 }
 
 int DateTime::year() const {
@@ -136,6 +144,7 @@ DateTime::DayOfWeek DateTime::dayOfWeek() const {
 
 DateTime& DateTime::add(int interval, Period period) {
   // Should accept a positive or negative interval for any period.
+  if (interval == 0) return *this;
   int newValue = 0;
   if (period == Millisecond) {
     int magnitude = _millisecond + interval;
@@ -184,7 +193,7 @@ DateTime& DateTime::add(int interval, Period period) {
     if (interval != 0) period = Day;
   }
   if (period == Day) {
-    while(interval) {
+    while(interval) { // TODO Replace iteration
       int magnitude = _day + interval;
       int daysInMonth = this->daysInMonth();
       if (magnitude > daysInMonth) {
@@ -203,7 +212,7 @@ DateTime& DateTime::add(int interval, Period period) {
       }
     }
   }
-  if (period == Month) {
+  if (period == Month) {  // TODO Can create invalid dates! 2000-01-31 +1 Month = ?
     int magnitude = this->month() + interval;  // 1 -1 = 0
     interval = magnitude / MONTHS_PER_YEAR;
     _month = (byte)(magnitude % MONTHS_PER_YEAR);
@@ -214,10 +223,14 @@ DateTime& DateTime::add(int interval, Period period) {
     if (interval != 0) period = Year;
   }
   if (period == Year) _year += interval;
+  if (_day > daysInMonth()) {
+    _daysAdjusted = _day - daysInMonth();
+    _day = daysInMonth();
+  }
   return *this;
 }
 
-byte DateTime::daysInMonth() {
+byte DateTime::daysInMonth() const {
   // http://en.wikipedia.org/wiki/Month
   switch (month()) {
     case 1:
@@ -262,32 +275,113 @@ byte DateTime::daysInMonth() {
 
 long DateTime::intervalTo(DateTime other, Period period) {
   // TODO: INCOMPLETE!
-//  int difference = 0;
-//  switch (period) {
-//    case Year:
-//      difference = other.year() - this->year();
-//      if (difference == 0) return 0;
-//      other.add(-difference, Year);
-//      if (difference < 0) {
-//        if (*this < other) return difference + 1;
-//      } else {
-//        if (*this > other) return difference - 1;
-//      }
-//      return difference;
-//      break;
-//    case Month:
-//      difference = MONTHS_PER_YEAR * (other.year() - this->year());  //1200
-//      difference += other.month() - this->month();  // +0
-//      if (difference == 0) return 0;
-//      other.add(-difference, Month);  // date?
-//      if (difference < 0) {
-//        if (*this < other) return difference + 1;
-//      } else {
-//        if (*this > other) return difference - 1;
-//      }
-//      return difference;
-//  }
-  return 0;
+  if (*this == other) return 0;
+  long int difference = 0;
+  int direction = 0;
+  DateTime *earlier;
+  DateTime *current;
+  DateTime *target;
+  switch (period) {
+    case Year:
+      difference = intervalIncrement(other, period);
+      break;
+    case Month:
+      difference = MONTHS_PER_YEAR * (other.year() - this->year());
+      difference += other.month() - this->month();
+      break;
+    case Day:
+      if (*this <= other) {
+        earlier = this;
+        current = this;
+        target = &other;
+        direction = 1;
+      } else {
+        earlier = &other;
+        current = &other;
+        target = this;
+        direction = -1;
+      }
+      current->add(100, Year);
+      while(*current <= *target && current->year() <= 2055) {
+        difference += direction * 36524;
+        if (*earlier <= DateTime(2000, 2, 29, 0, 0, 0, 0) && DateTime(2000, 2, 29, 23, 59, 59, 999) < *current)
+          difference += direction;  // add leap year 2000 not included in 36524 count for "normal" century.
+        *earlier = *current;
+        current->add(100, Year);
+      }
+      *current = *earlier;
+
+      current->add(4, Year);
+      while(*current <= *target && current->year() <= 2151) {
+        difference += direction * 1461;
+
+        // TODO: Need to step forward to the next leap day, check it's in range, count it, step forward 4 years, loop.
+
+        *earlier = *current;
+        current->add(4, Year);
+      }
+      *current = *earlier;
+
+      break;
+    default:
+      break;
+  }
+  return difference;
+}
+
+// Calculates periods between two dates. CAUTION!
+// Calculates years between ANY dates
+// Calculates months between dates IN THE SAME YEAR
+// Calculates days between dates IN THE SAME YEAR & MONTH
+// Calculates hours between DateTimes ON THE SAME DAY, etc.
+long DateTime::intervalIncrement(DateTime& other, Period period) {
+  // TODO: Does not account for 1 year between 2000-02-29 and 2001-02-28
+  long difference = other.getPeriod(period) - this->getPeriod(period);
+  other.add(-difference, period); // will adjust automatically if beyond end of month
+  if (difference == 0) return 0;
+  if (this->isLeapDay() && other.month() == 2 && other.day() == 28) other.add(1, DateTime::Day);  // Special case for comparing with a leap day
+  if (difference > 0) {
+    if (*this > other) return difference - 1;
+  } else {
+    if (*this < other) return difference + 1;
+  }
+  return difference;
+}
+
+byte DateTime::daysAdjusted() const {
+  return _daysAdjusted;
+}
+
+void DateTime::zeroDaysAdjusted() {
+  _daysAdjusted = 0;
+}
+
+int DateTime::getPeriod(Period period) const {
+  switch (period) {
+  case Year:
+    return (int)this->year();
+    break;
+  case Month:
+    return (int)this->month();
+    break;
+  case Day:
+    return (int)this->day();
+    break;
+  case Hour:
+    return (int)this->hour();
+    break;
+  case Minute:
+    return (int)this->minute();
+    break;
+  case Second:
+    return (int)this->second();
+    break;
+  case Millisecond:
+    return this->millisecond();
+    break;
+  default:
+    return 0;
+  }
 }
 
 unsigned long DateTime::totalMilliseconds() const {
@@ -329,6 +423,10 @@ boolean DateTime::isEqualTo(const DateTime &other) const {
 
 boolean DateTime::operator == (const DateTime &other) const {
   return this->isEqualTo(other);
+}
+
+boolean DateTime::operator != (const DateTime &other) const {
+  return !this->isEqualTo(other);
 }
 
 boolean DateTime::operator < (const DateTime &other) const {
@@ -492,4 +590,29 @@ boolean DateTime::isValid() {
   if (_millisecond < 0) return false;
   if (_millisecond > (MILLISECONDS_PER_SECOND - 1)) return false;
   return true;
+}
+
+byte DateTime::leapDaysInRange(DateTime earlier, DateTime later) {
+  byte leapDays = 0;
+  int year = earlier.year();
+  while(!isLeapYear(year)) year++;
+  DateTime leapDayStart = DateTime(year, 2, 29, 0, 0, 0, 0);
+  DateTime leapDayEnd = DateTime(year, 3, 1, 0, 0, 0, 0);
+  while (earlier <= leapDayStart && leapDayEnd <= later) {
+    leapDays++;
+    if (leapDayStart.year() == 2152) break;
+    if (isLeapYear(leapDayStart.year() + 4)) {
+      leapDayStart.add(4, Year);
+      leapDayEnd.add(4, Year);
+    } else {
+      leapDayStart.add(8, Year);
+      leapDayEnd.add(8, Year);
+    }
+  }
+  return leapDays;
+}
+
+boolean DateTime::isLeapYear(int year) {
+  //http://en.wikipedia.org/wiki/Leap_year
+  return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
 }

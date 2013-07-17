@@ -54,19 +54,26 @@ class DateTime
     byte minuteUnits() const;
     byte second() const;
     int millisecond() const;
+    int getPeriod(Period period) const;
+    byte daysAdjusted() const;
+    void zeroDaysAdjusted();
 
     DateTime::DayOfWeek dayOfWeek() const;
     boolean isLeapYear() const;
+    boolean isLeapDay() const;
+    boolean isLastDayOfMonth() const;
 
     DateTime& add(int interval, Period period);
-    byte daysInMonth();
+    byte daysInMonth() const;
     long intervalTo(const DateTime other, Period period);
+    long intervalIncrement(DateTime& other, Period period);
     unsigned long totalMilliseconds() const;
 
     boolean isEarlierThan(const DateTime &other) const;
     boolean isEqualTo(const DateTime &other) const;
 
     boolean operator == (const DateTime &other) const;
+    boolean operator != (const DateTime &other) const;
     boolean operator < (const DateTime &other) const;
     boolean operator <= (const DateTime &other) const;
     boolean operator > (const DateTime &other) const;
@@ -82,10 +89,14 @@ class DateTime
     String& dayOfWeekToShortString();
     String& dayOfWeekToShortString(DayOfWeek day);
 
+    static byte leapDaysInRange(DateTime earlier, DateTime later);
+    static boolean isLeapYear(int year);
+
   protected:
     byte _year; // 0 = 1900. 255 = 2155;
     byte _month, _day, _hour, _minute, _second;
     int _millisecond;
+    byte _daysAdjusted; // represents days subtracted if _day > daysInMonth
     String* _stringValue;
   private:
     String& getProgMemString(const char *progMemString, byte index);
