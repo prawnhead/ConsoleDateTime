@@ -102,12 +102,12 @@ int main()
   // Test add()
 //  testAdd(DateTime(1996, 2, 29, 0, 0, 0, 0), DateTime::Year, 4, DateTime(2000, 2, 29, 0, 0, 0, 0));
 
-  // Test DateTime::leapDaysInRange()
-  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(1900, 1, 1, 0, 0, 0, 0), 0);
-  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(1901, 1, 1, 0, 0, 0, 0), 0);
-  testLeapDaysInRange(DateTime(1904, 1, 1, 0, 0, 0, 0), DateTime(1904, 12, 31, 0, 0, 0, 0), 1);
-  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(2000, 1, 1, 0, 0, 0, 0), 24);
-  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(2155, 1, 1, 0, 0, 0, 0), 62);
+//  // Test DateTime::leapDaysInRange()
+//  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(1900, 1, 1, 0, 0, 0, 0), 0);
+//  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(1901, 1, 1, 0, 0, 0, 0), 0);
+//  testLeapDaysInRange(DateTime(1904, 1, 1, 0, 0, 0, 0), DateTime(1904, 12, 31, 0, 0, 0, 0), 1);
+//  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(2000, 1, 1, 0, 0, 0, 0), 24);
+//  testLeapDaysInRange(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(2155, 1, 1, 0, 0, 0, 0), 62);
 //
 //  cout << "Test day of week strings (long)" << endl;
 //  testString(test.dayOfWeekToString(DateTime::Error), "Error");
@@ -250,10 +250,23 @@ int main()
 //  testIntervalTo(DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime::Month, -1200);
 //  testIntervalTo(DateTime(2155, 12, 31, 23, 59, 59, 999), DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime::Month, -3071);
 //
-//  // Days
-//  testIntervalTo(DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime::Day, 0);
-//  testIntervalTo(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime::Day, 36524);
-//  testIntervalTo(DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime(2100, 1, 1, 0, 0, 0, 0), DateTime::Day, 36525);
+  // Days
+  // Century periods
+  testIntervalTo(DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime::Day, 0);
+  testIntervalTo(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime::Day, 36524);
+  testIntervalTo(DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime(2100, 1, 1, 0, 0, 0, 0), DateTime::Day, 36525);
+  // Leap periods
+  testIntervalTo(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(1904, 1, 1, 0, 0, 0, 0), DateTime::Day, 1460);  // 0 leap days
+  testIntervalTo(DateTime(1904, 1, 1, 0, 0, 0, 0), DateTime(1908, 1, 1, 0, 0, 0, 0), DateTime::Day, 1461);  // 1 leap day
+  testIntervalTo(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(1912, 1, 1, 0, 0, 0, 0), DateTime::Day, 4382);  // 2 leap days
+  testIntervalTo(DateTime(1999, 1, 1, 0, 0, 0, 0), DateTime(2003, 1, 1, 0, 0, 0, 0), DateTime::Day, 1461);  // 1 millennial leap day
+  testIntervalTo(DateTime(2099, 1, 1, 0, 0, 0, 0), DateTime(2103, 1, 1, 0, 0, 0, 0), DateTime::Day, 1460);  // 0 millennial leap days
+  // Year periods
+  testIntervalTo(DateTime(1901, 1, 1, 0, 0, 0, 0), DateTime(1902, 1, 1, 0, 0, 0, 0), DateTime::Day, 365);  // 0 leap days normal year
+  testIntervalTo(DateTime(1904, 1, 1, 0, 0, 0, 0), DateTime(1905, 1, 1, 0, 0, 0, 0), DateTime::Day, 366);  // 1 leap day, leap year
+  testIntervalTo(DateTime(1900, 1, 1, 0, 0, 0, 0), DateTime(1901, 1, 1, 0, 0, 0, 0), DateTime::Day, 365);  // 0 leap days, century
+  testIntervalTo(DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime(2001, 1, 1, 0, 0, 0, 0), DateTime::Day, 366);  // 1 leap day, century
+  testIntervalTo(DateTime(2100, 1, 1, 0, 0, 0, 0), DateTime(2101, 1, 1, 0, 0, 0, 0), DateTime::Day, 365);  // 0 leap days, century
 
   float passRate = (tests - fails)/(float) tests * 100;
   printf("\nTEST PASS RATE: %3.2f%%. %d tests.\n", passRate, tests);

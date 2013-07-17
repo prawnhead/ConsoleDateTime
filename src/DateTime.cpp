@@ -281,6 +281,7 @@ long DateTime::intervalTo(DateTime other, Period period) {
   DateTime *earlier;
   DateTime *current;
   DateTime *target;
+  int limit = 0;
   switch (period) {
     case Year:
       difference = intervalIncrement(other, period);
@@ -291,37 +292,79 @@ long DateTime::intervalTo(DateTime other, Period period) {
       break;
     case Day:
       if (*this <= other) {
-        earlier = this;
-        current = this;
+        earlier = new DateTime(*this);
+        current = new DateTime(*this);
         target = &other;
         direction = 1;
       } else {
-        earlier = &other;
-        current = &other;
+        earlier = new DateTime(other);
+        current = new DateTime(other);
         target = this;
         direction = -1;
       }
-      current->add(100, Year);
-      while(*current <= *target && current->year() <= 2055) {
-        difference += direction * 36524;
-        if (*earlier <= DateTime(2000, 2, 29, 0, 0, 0, 0) && DateTime(2000, 2, 29, 23, 59, 59, 999) < *current)
-          difference += direction;  // add leap year 2000 not included in 36524 count for "normal" century.
-        *earlier = *current;
+      // 1. Count normal years of 365 days
+      // 2. Ensure leap days are NOT counted
+      // 3. Add leap days for entire range ONCE using leapDaysInRange()
+//      int year = current->year();
+//      byte month = current->month();
+//      byte day = current->day();
+//      if (year < (MAX_YEAR - 100)) {
+//        current->add(100, Year);  // Can trim days
+//        if (_day > daysInMonth()) {
+//          _daysAdjusted = _day - daysInMonth();
+//          _day = daysInMonth();
+//        }
+//        while(*current <= *target) {
+//          difference += DAYS_PER_NORMAL_YEAR * 100 * direction;
+//        }
+//      }
+
+//      WORKS SO FAR. REMOVED FOR REFACTOR
+      limit = MAX_YEAR - 100;
+      if (current->year() <= limit) {
         current->add(100, Year);
+        while(*current <= *target) {
+          difference += direction * 36524;  // Assumes turn of the century is NOT a leap year
+          if (*earlier <= DateTime(2000, 2, 29, 0, 0, 0, 0) && DateTime(2000, 3, 1, 0, 0, 0, 0) <= *current) // 2000 leap year
+            difference += direction;  // add leap year 2000 not included in 36524 count for "normal" century.
+          *earlier = *current;
+          if (current->year() > limit) break;
+          current->add(100, Year);
+        }
+        *current = *earlier;
       }
-      *current = *earlier;
-
-      current->add(4, Year);
-      while(*current <= *target && current->year() <= 2151) {
-        difference += direction * 1461;
-
-        // TODO: Need to step forward to the next leap day, check it's in range, count it, step forward 4 years, loop.
-
-        *earlier = *current;
+      limit = MAX_YEAR - 10;
+      if (current->year() <= limit) {
         current->add(4, Year);
+        while(*current <= *target) {
+          difference += direction * 1461; // includes a leap year
+          if (*earlier < DateTime(1900, 3, 1, 0, 0, 0, 0) && DateTime(1900, 3, 1, 0, 0, 0, 0) <= *current) // 1900 not a leap year
+            difference -= direction;
+          if (*earlier < DateTime(2100, 3, 1, 0, 0, 0, 0) && DateTime(2100, 3, 1, 0, 0, 0, 0) <= *current) // 2100 not a leap year
+            difference -= direction;
+          *earlier = *current;
+          if (current->year() > limit) break;
+          current->add(4, Year);
+        }
+        *current = *earlier;
       }
-      *current = *earlier;
-
+      limit = MAX_YEAR - 1;
+      if (current->year() <= limit) {
+        current->add(1, Year);
+        while(*current <= *target) {
+          difference += direction * DAYS_PER_NORMAL_YEAR;
+          if (earlier->isLeapYear() && *earlier <= DateTime(earlier->year(), 2, 29, 0, 0, 0, 0) && DateTime(earlier->year(), 3, 1, 0, 0, 0, 0) <= *current)
+            difference += direction;
+          if (current->isLeapYear() && *earlier <= DateTime(current->year(), 2, 29, 0, 0, 0, 0) && DateTime(current->year(), 3, 1, 0, 0, 0, 0) <= *current)
+            difference += direction;
+          *earlier = *current;
+          if (current->year() > limit) break;
+          current->add(4, Year);
+        }
+        *current = *earlier;
+      }
+      delete earlier;
+      delete current;
       break;
     default:
       break;
