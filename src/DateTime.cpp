@@ -34,25 +34,27 @@ DateTime::DateTime(int year, int month, int day, int hour, int minute, int secon
 
 DateTime::DateTime(char* date, char* time, DateTime::TimeSource source) {
   _stringValue = 0;
-  switch (source) {
-    case Compiler:
-      _year = parse((date + 7), 4) - MIN_YEAR; //epoch.year();
-      _month = monthFromString(date);
-      _day = parse((date + 4), 2);
-      _hour = parse(time, 2);
-      _minute = parse(time + 3, 2);
-      _second = parse(time + 6, 2);
-      _millisecond = 0;
-      break;
-    case NMEA:
-      _year = 100 + parse(date + 4, 2);
+  if (source == Compiler) {
+      int year = parse((date + 7), 4);
+      if (year < MIN_YEAR || year > MAX_YEAR) initialise();
+      else {
+        _year = year - MIN_YEAR; //epoch.year();
+        _month = monthFromString(date);
+        _day = parse((date + 4), 2);
+        _hour = parse(time, 2);
+        _minute = parse(time + 3, 2);
+        _second = parse(time + 6, 2);
+        _millisecond = 0;
+      }
+  }
+  if (source == NMEA) {
+      _year = 100 + parse(date + 4, 2); // TODO: Check for invalid year
       _month = parse(date + 2, 2);
       _day = parse(date, 2);
       _hour = parse(time, 2);
       _minute = parse(time + 2, 2);
       _second = parse(time + 4, 2);
       _millisecond = parse(time + 7, 3);
-      break;
   }
   _daysAdjusted = 0;
   if (!isValid()) initialise();
@@ -302,24 +304,7 @@ long DateTime::intervalTo(DateTime other, Period period) {
         target = this;
         direction = -1;
       }
-      // 1. Count normal years of 365 days
-      // 2. Ensure leap days are NOT counted
-      // 3. Add leap days for entire range ONCE using leapDaysInRange()
-//      int year = current->year();
-//      byte month = current->month();
-//      byte day = current->day();
-//      if (year < (MAX_YEAR - 100)) {
-//        current->add(100, Year);  // Can trim days
-//        if (_day > daysInMonth()) {
-//          _daysAdjusted = _day - daysInMonth();
-//          _day = daysInMonth();
-//        }
-//        while(*current <= *target) {
-//          difference += DAYS_PER_NORMAL_YEAR * 100 * direction;
-//        }
-//      }
-
-//      WORKS SO FAR. REMOVED FOR REFACTOR
+      // PHASE 1: Add centuries if possible
       limit = MAX_YEAR - 100;
       if (current->year() <= limit) {
         current->add(100, Year);
@@ -333,6 +318,7 @@ long DateTime::intervalTo(DateTime other, Period period) {
         }
         *current = *earlier;
       }
+      // PHASE 2: Add decades if possible
       limit = MAX_YEAR - 10;
       if (current->year() <= limit) {
         current->add(4, Year);
@@ -348,6 +334,7 @@ long DateTime::intervalTo(DateTime other, Period period) {
         }
         *current = *earlier;
       }
+      // PHASE 3: Add years if possible
       limit = MAX_YEAR - 1;
       if (current->year() <= limit) {
         current->add(1, Year);
@@ -363,6 +350,9 @@ long DateTime::intervalTo(DateTime other, Period period) {
         }
         *current = *earlier;
       }
+      // PHASE 4: Add months if possible
+
+      // PHASE 5: Add days if possible
       delete earlier;
       delete current;
       break;

@@ -24,23 +24,23 @@
 #define MIN_YEAR 1900
 #define MAX_YEAR 2155
 
-const char monthNames[] PROGMEM = "Error\0January\0February\0March\0April\0May\0June\0July\0August\0September\0October\0November\0December";
-const byte monthNameIndex[] = {0, 6, 14, 23, 29, 35, 39, 44, 49, 56, 66, 74, 83};
-const char monthNamesShort[] PROGMEM = "Err\0Jan\0Feb\0Mar\0Apr\0May\0Jun\0Jul\0Aug\0Sep\0Oct\0Nov\0Dec";
-const char dayNames[] PROGMEM = "Error\0Sunday\0Monday\0Tuesday\0Wednesday\0Thursday\0Friday\0Saturday";
-const byte dayNameIndex[] = {0, 6, 13, 20, 28, 38, 47, 54};
-const char dayNamesShort[] PROGMEM = "Err\0Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
+/* TESTED */ const char monthNames[] PROGMEM = "Error\0January\0February\0March\0April\0May\0June\0July\0August\0September\0October\0November\0December";
+/* TESTED */ const byte monthNameIndex[] = {0, 6, 14, 23, 29, 35, 39, 44, 49, 56, 66, 74, 83};
+/* TESTED */ const char monthNamesShort[] PROGMEM = "Err\0Jan\0Feb\0Mar\0Apr\0May\0Jun\0Jul\0Aug\0Sep\0Oct\0Nov\0Dec";
+/* TESTED */ const char dayNames[] PROGMEM = "Error\0Sunday\0Monday\0Tuesday\0Wednesday\0Thursday\0Friday\0Saturday";
+/* TESTED */ const byte dayNameIndex[] = {0, 6, 13, 20, 28, 38, 47, 54};
+/* TESTED */ const char dayNamesShort[] PROGMEM = "Err\0Sun\0Mon\0Tue\0Wed\0Thu\0Fri\0Sat";
 
 class DateTime
 {
   public:
-    enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
-    enum DayOfWeek { Error, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
-    enum TimeSource { Compiler, NMEA };
+    /* Not tested, assumed */ enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
+    /* Not tested, assumed */ enum DayOfWeek { Error, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
+    /* Not tested, assumed */ enum TimeSource { Compiler, NMEA };
 
-    DateTime();
-    DateTime(char* date, char* time, DateTime::TimeSource source); // Compiler or GPS strings
+    /* TESTED */ DateTime();
     DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
+    DateTime(char* date, char* time, DateTime::TimeSource source); // Compiler or GPS strings
     void initialise();
     virtual ~DateTime();
 
