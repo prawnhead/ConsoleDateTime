@@ -58,9 +58,17 @@ void testString(String expected, String actual) {
 
 void testLeapYear(int year, boolean expected) {
   tests++;
-  if (DateTime::isLeapYear(year) != expected) {
+  if (DateTime(year, 1, 1, 0, 0, 0, 0).isLeapYear(year) != expected) {
     fails++;
     printf("FAILURE of isLeapYear() for %d.\n", year);
+  }
+}
+
+void testDaysInMonth(byte month, int year, byte expected) {
+  tests++;
+  if (DateTime(year, month, 1, 0, 0, 0, 0).daysInMonth() != expected) {
+    fails++;
+    printf("FAILURE of daysInMonth() for %d.\n\tExpected: %d\n\tActual:   %d\n", month, expected, DateTime(year, month, 1, 0, 0, 0, 0).daysInMonth());
   }
 }
 
@@ -352,6 +360,23 @@ int main()
   testLeapYear(2153, false);
   testLeapYear(2154, false);
   testLeapYear(2155, false);
+
+  printf("Testing: daysInMonth()\n");
+  testDaysInMonth(1, 1999, 31);
+  testDaysInMonth(2, 1999, 28); // non leap year
+  testDaysInMonth(2, 1996, 29); // normal leap year
+  testDaysInMonth(2, 1900, 28); // century non leap year
+  testDaysInMonth(2, 2000, 29); // century leap year
+  testDaysInMonth(3, 1999, 31);
+  testDaysInMonth(4, 1999, 30);
+  testDaysInMonth(5, 1999, 31);
+  testDaysInMonth(6, 1999, 30);
+  testDaysInMonth(7, 1999, 31);
+  testDaysInMonth(8, 1999, 31);
+  testDaysInMonth(9, 1999, 30);
+  testDaysInMonth(10, 1999, 31);
+  testDaysInMonth(11, 1999, 30);
+  testDaysInMonth(12, 1999, 31);
 
   if (tests == 0) cout << "No tests performed." << endl;
   else {
