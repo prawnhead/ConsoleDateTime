@@ -30,6 +30,7 @@ class DateTime
 {
   public:
     DateTime();
+    DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond);
 
     int year();
     byte month();
@@ -38,9 +39,11 @@ class DateTime
     byte minute();
     byte second();
     int millisecond();
+    String* _string;
 
+    String& toString();
 #ifndef ARDUINO
-    static char* intToString(int value);
+    static char* intToString(int value);  // TESTED
 #endif
 
   protected:

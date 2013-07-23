@@ -14,6 +14,18 @@ DateTime::DateTime() {
   _minute = 0;
   _second = 0;
   _millisecond = 0;
+  _string = 0;
+}
+
+DateTime::DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond) {
+  _year = year - MIN_YEAR;
+  _month = month;
+  _day = day;
+  _hour = hour;
+  _minute = minute;
+  _second = second;
+  _millisecond = millisecond;
+  _string = 0;
 }
 
 int DateTime::year() {
@@ -44,7 +56,34 @@ int DateTime::millisecond() {
   return _millisecond;
 }
 
-// PRIVATE FUNCTIONS
+String& DateTime::toString() {
+ //http://arduino.cc/en/Reference/StringObject
+ String* output = new String();
+ *output += intToString(year());
+ *output += '-';
+ if (_month < 10) *output += '0';
+ *output += intToString(_month);
+ *output += '-';
+ if (_day < 10) *output += '0';
+ *output += intToString(_day);
+ *output += ' ';
+ if (_hour < 10) *output += '0';
+ *output += intToString(_hour);
+ *output += ':';
+ if (_minute < 10) *output += '0';
+ *output += intToString(_minute);
+ *output += ':';
+ if (_second < 10) *output += '0';
+ *output += intToString(_second);
+ *output += '.';
+ if (_millisecond < 100) *output += '0';
+ if (_millisecond < 10) *output += '0';
+ *output += intToString(_millisecond);
+
+ delete(_string);
+ _string = output;
+ return *_string;
+}
 
 #ifndef ARDUINO
 char* DateTime::intToString(int value) {
@@ -53,3 +92,5 @@ char* DateTime::intToString(int value) {
    return ramBuffer;
  }
 #endif
+
+// PRIVATE FUNCTIONS

@@ -1,14 +1,14 @@
 # depslib dependency file v1.0
-1374538382 source:d:\users\christian\documents\github\consoledatetime\main.cpp
+1374538912 source:d:\users\christian\documents\github\consoledatetime\main.cpp
 	<iostream>
 	"DateTime.h"
 
-1374538312 d:\users\christian\documents\github\consoledatetime\include\datetime.h
+1374540718 d:\users\christian\documents\github\consoledatetime\include\datetime.h
 	<iostream>
 	<string>
 	<cstdio>
 	<Arduino.h>
 
-1374537414 source:d:\users\christian\documents\github\consoledatetime\src\datetime.cpp
+1374540731 source:d:\users\christian\documents\github\consoledatetime\src\datetime.cpp
 	"DateTime.h"
 
