@@ -16,28 +16,39 @@
   #define intToString(X) X
 #endif
 
-//#define MILLISECONDS_PER_SECOND 1000
-//#define SECONDS_PER_MINUTE 60
-//#define MINUTES_PER_HOUR 60
-//#define HOURS_PER_DAY 24
-//#define MONTHS_PER_YEAR 12
+#define MILLISECONDS_PER_SECOND 1000
+#define SECONDS_PER_MINUTE 60
+#define MINUTES_PER_HOUR 60
+#define HOURS_PER_DAY 24
+#define DAYS_PER_400_YEARS 146097
+#define MONTHS_PER_YEAR 12
 //#define DAYS_PER_NORMAL_YEAR 365
 #define MIN_YEAR 1900
 #define MAX_YEAR 2155
+#define ADJUSTMENT_MASK 0x03
 
+/* NOTES:
+ * A month is defined as a calendar month.
+ * Normal example:
+ * DateTime(2001, 1, 15, 0, 0, 0, 0).add(1, DateTime::Month) == DateTime(2001, 2, 15, 0, 0, 0, 0)
+ * Adjusted example:
+ * DateTime(2001, 1, 31, 0, 0, 0, 0).add(1, DateTime::Month) == DateTime(2001, 2, 28, 0, 0, 0, 0)
+ * When the day of the month is adjusted so as to not exceed the length of the month,
+ * the getAdjustment() value is set; this indicates the number of days that were subtracted.
+ * This occurs when moving by Months or Years from a month with more days to onw with less.
+ */
 class DateTime
 {
   public:
-
     enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
-    enum Codes { Valid = 1, Overflow = 2};
+    enum Status { AdjustedBit0 = 1, AdjustedBit1 = 2, Valid = 4, Overflow = 8};
     //enum DayOfWeek { Error, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
     //enum TimeSource { Compiler, NMEA };
 
     /* TESTED */ DateTime();
     /* TESTED */ DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond);
 
-    /* TESTED */ void epoch(); // reset to default date/time
+    /* TESTED */ void setEpoch(); // reset to default date/time
 
     /* TESTED */ int year() const;
     /* TESTED */ byte month() const;
@@ -52,7 +63,12 @@ class DateTime
     /* TESTED */ static byte daysInMonth(byte month, int year);
     /* TESTED */ byte daysInMonth() const;
 
-    DateTime& add(int interval, Period period);
+    /* TESTED */ void setStatus(DateTime::Status status, boolean state);
+    /* TESTED */ boolean getStatus(DateTime::Status status);
+    /* TESTED */ void setAdjustment(byte value);
+    /* TESTED */ byte getAdjustment() const;
+
+    DateTime& add(long int interval, Period period);
 #ifndef ARDUINO
     /* TESTED */ static char* intToString(int value);
 #endif
@@ -60,10 +76,11 @@ class DateTime
 
   protected:
     byte _year; // 0-255 represents 1900-2155
-    byte _month, _day, _hour, _minute, _second;
+    byte _month, _day, _hour, _minute, _second, _status;
     int _millisecond;
     String* _string;
   private:
+    boolean isValid();
 };
 
 #endif // DATETIME_H

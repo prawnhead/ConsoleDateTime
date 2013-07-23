@@ -72,6 +72,27 @@ void testDaysInMonth(byte month, int year, byte expected) {
   }
 }
 
+void testGetStatus(DateTime test, DateTime::Status status, boolean expected) {
+  tests++;
+  if (test.getStatus(status) != expected) {
+    fails++;
+    printf("FAILURE of getStatus() for %s\n", test.toString().c_str());
+  }
+}
+
+void testGetAdjustment(DateTime test, byte expected) {
+  tests++;
+  if (test.getAdjustment() != expected) {
+    fails++;
+    printf("FAILURE of getAdjustment() for %s. Expected: %d. Actual: %d.\n", test.toString().c_str(), expected, test.getAdjustment());
+  }
+}
+
+//String booleanToString(boolean value) {
+//  if (value) return "TRUE";
+//  else return "FALSE";
+//}
+//
 int main()
 {
   DateTime test;
@@ -377,6 +398,30 @@ int main()
   testDaysInMonth(10, 1999, 31);
   testDaysInMonth(11, 1999, 30);
   testDaysInMonth(12, 1999, 31);
+
+  printf("Testing: getStatus() & setStatus()\n");
+  test = DateTime();  // default is valid
+  testGetStatus(test, DateTime::Valid, true);
+  testGetStatus(test, DateTime::Overflow, false);
+  test.add(300, DateTime::Year);  // will cause year overflow
+  testGetStatus(test, DateTime::Valid, false);
+  testGetStatus(test, DateTime::Overflow, true);
+
+  printf("Testing: getAdjustment() & setAdjustment()\n"); // TODO: Write tests
+
+  printf("Testing: add()\n"); // TODO: Complete tests
+  test = DateTime(2000, 2, 29, 0, 0, 0, 0);
+  test.add(1, DateTime::Year);
+  testDateTimeValues(2001, 2, 28, 0, 0, 0, 0, test, "1 year from leap day");
+  testGetAdjustment(test, 1);
+  test = DateTime(2000, 1, 31, 0, 0, 0, 0);
+  test.add(1, DateTime::Month);
+  testDateTimeValues(2000, 2, 29, 0, 0, 0, 0, test, "1 month from Jan 31 on leap year");
+  testGetAdjustment(test, 2);
+  test = DateTime(2001, 1, 31, 0, 0, 0, 0);
+  test.add(1, DateTime::Month);
+  testDateTimeValues(2001, 2, 28, 0, 0, 0, 0, test, "1 month from Jan 31 on non leap year");
+  testGetAdjustment(test, 3);
 
   if (tests == 0) cout << "No tests performed." << endl;
   else {

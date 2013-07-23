@@ -7,7 +7,7 @@
 // PUBLIC FUNCTIONS
 
 DateTime::DateTime() {
-  epoch();
+  setEpoch();
 }
 
 DateTime::DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond) {
@@ -19,9 +19,10 @@ DateTime::DateTime(int year, byte month, byte day, byte hour, byte minute, byte 
   _second = second;
   _millisecond = millisecond;
   _string = 0;
+  if (!isValid()) setEpoch();
 }
 
-void DateTime::epoch() {
+void DateTime::setEpoch() {
   _year = 0;
   _month = 1;
   _day = 1;
@@ -30,6 +31,8 @@ void DateTime::epoch() {
   _second = 0;
   _millisecond = 0;
   _string = 0;
+  _status = 0;
+  setStatus(Valid, true);
 }
 
 int DateTime::year() const {
@@ -116,7 +119,41 @@ byte DateTime::daysInMonth(byte month, int year) {
  return 0;
 }
 
-DateTime& DateTime::add(int interval, Period period) {
+void DateTime::setStatus(DateTime::Status status, boolean state) {
+  if (state) _status |= status;
+  else _status &= (255 - status);
+}
+
+boolean DateTime::getStatus(DateTime::Status status) {
+  return (_status & status);
+}
+
+void DateTime::setAdjustment(byte value) {
+  switch (value) {
+  case 0:
+    setStatus(AdjustedBit0, false);
+    setStatus(AdjustedBit1, false);
+    break;
+  case 1:
+    setStatus(AdjustedBit0, true);
+    setStatus(AdjustedBit1, false);
+    break;
+  case 2:
+    setStatus(AdjustedBit0, false);
+    setStatus(AdjustedBit1, true);
+    break;
+  case 3:
+    setStatus(AdjustedBit0, true);
+    setStatus(AdjustedBit1, true);
+    break;
+  }
+}
+
+byte DateTime::getAdjustment() const {
+  return _status & ADJUSTMENT_MASK;
+}
+
+DateTime& DateTime::add(long int interval, Period period) {
 //  // Should accept a positive or negative interval for any period.
 //  if (interval == 0) return *this;
 //  int newValue = 0;
@@ -186,29 +223,30 @@ DateTime& DateTime::add(int interval, Period period) {
 //      }
 //    }
 //  }
-//  if (period == Month) {  // TODO Can create invalid dates! 2000-01-31 +1 Month = ?
-//    int magnitude = this->month() + interval;  // 1 -1 = 0
-//    interval = magnitude / MONTHS_PER_YEAR;
-//    _month = (byte)(magnitude % MONTHS_PER_YEAR);
-//    if (!_month) {
-//      _month = MONTHS_PER_YEAR;
-//      interval--;
-//    }
-//    if (interval != 0) period = Year;
-//  }
-  if (period == Year) { // TODO: Add error checking here
-    int testYear = interval + _year;
+  if (period == Month) {
+    long int magnitude = this->month() + interval;
+    interval = magnitude / MONTHS_PER_YEAR;
+    _month = (byte)(magnitude % MONTHS_PER_YEAR);
+    if (_month == 0) {
+      _month = MONTHS_PER_YEAR;
+      interval--;
+    }
+    if (interval != 0) period = Year;
+  }
+  if (period == Year) {
+    long int testYear = interval + year();
     if (testYear > MAX_YEAR || testYear < MIN_YEAR) { // overflow will occur
-      epoch();
-
+      setEpoch();
+      setStatus(Valid, false);
+      setStatus(Overflow, true);
     } else _year += interval;
   }
 
-//  // Correct for different month lengths, if required.
-//  if (_day > daysInMonth()) {
-//    _daysAdjusted = _day - daysInMonth();
-//    _day = daysInMonth();
-//  }
+  // Correct for different month lengths, if required.
+  if (_day > daysInMonth()) {
+    setAdjustment(_day - daysInMonth());
+    _day = daysInMonth();
+  }
   return *this;
 }
 
@@ -250,3 +288,19 @@ String& DateTime::toString() {
 }
 
 // PRIVATE FUNCTIONS
+
+boolean DateTime::isValid() {
+  boolean validity = true;
+  // all years are valid (0 - 255) = (1900 - 2155)
+  if (_month == 0) validity = false;
+  else if (_month > MONTHS_PER_YEAR) validity = false;
+  else if (_day == 0) validity = false;
+  else if (_day > daysInMonth()) validity = false; // month must be checked prior to calling daysInMonth()
+  else if (_hour > (HOURS_PER_DAY - 1)) validity = false;
+  else if (_minute > (MINUTES_PER_HOUR - 1)) validity = false;
+  else if (_second > (SECONDS_PER_MINUTE - 1)) validity = false;
+  else if (_millisecond < 0) validity = false;
+  else if (_millisecond > (MILLISECONDS_PER_SECOND - 1)) validity = false;
+  if (!validity) setStatus(Valid, false);
+  return validity;
+}
