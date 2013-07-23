@@ -56,6 +56,19 @@ int DateTime::millisecond() {
   return _millisecond;
 }
 
+boolean DateTime::isLeapYear(int year) {
+ //http://en.wikipedia.org/wiki/Leap_year
+ return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
+}
+
+#ifndef ARDUINO
+char* DateTime::intToString(int value) {
+   static char ramBuffer[10];
+   sprintf(ramBuffer, "%d", value);
+   return ramBuffer;
+ }
+#endif
+
 String& DateTime::toString() {
  //http://arduino.cc/en/Reference/StringObject
  String* output = new String();
@@ -84,13 +97,5 @@ String& DateTime::toString() {
  _string = output;
  return *_string;
 }
-
-#ifndef ARDUINO
-char* DateTime::intToString(int value) {
-   static char ramBuffer[10];
-   sprintf(ramBuffer, "%d", value);
-   return ramBuffer;
- }
-#endif
 
 // PRIVATE FUNCTIONS
