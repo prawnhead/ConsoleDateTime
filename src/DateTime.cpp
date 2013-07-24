@@ -21,6 +21,7 @@ DateTime::DateTime(int year, byte month, byte day, byte hour, byte minute, byte 
     _second = second;
     _millisecond = millisecond;
     _string = 0;
+    _status = Valid;
     if (!isValid()) setEpoch();
 }
 
@@ -34,8 +35,7 @@ void DateTime::setEpoch()
     _second = 0;
     _millisecond = 0;
     _string = 0;
-    _status = 0;
-    setStatus(Valid, true);
+    _status = Valid;
 }
 
 int DateTime::year() const
@@ -184,6 +184,15 @@ long DateTime::abs(long value) {
   return value;
 }
 
+int DateTime::daysInYear(int year) {
+  if (isLeapYear(year)) return 366;
+  return 365;
+}
+
+int DateTime::daysInYear() const {
+  return daysInYear(year());
+}
+
 //byte DateTime::leapDaysInRange(DateTime alpha, DateTime omega)
 //// Precondition: alpha <= omega
 //{
@@ -229,6 +238,7 @@ void DateTime::addOneDay() {
 }
 
 void DateTime::addOneMonth() {
+  // Precondition: Must not be used on days after 28th of any month
   if (_month < MONTHS_PER_YEAR) _month++;
   else {
     _month = 1;
@@ -237,8 +247,55 @@ void DateTime::addOneMonth() {
 }
 
 void DateTime::addOneYear() {
+  // Precondition: Must not be used on days after 28th of any month
   if (_year < MAX_YEAR) _year++;
   else overflowed();
+}
+
+void DateTime::subtractOneDay() {
+  if (_day > 1) _day--;
+  else {
+    subtractOneMonth();
+    _day = daysInMonth();
+  }
+}
+
+void DateTime::subtractOneMonth() {
+  // Precondition: Must not be used on days after 28th of any month
+  if (_month > 1) _month--;
+  else {
+    subtractOneYear();
+    _month = MONTHS_PER_YEAR;
+  }
+}
+
+void DateTime::subtractOneYear() {
+  // Precondition: Must not be used on days after 28th of any month
+  if (_year < MIN_YEAR) _year--;
+  else overflowed();
+}
+
+int DateTime::monthCarryBorrow(int& month) {
+  // Accepts a month of any positive or negative value.
+  // Restores 'month' to a number between 1 and 12
+  // Returns the number of years to carry/borrow.
+  int carryBorrow = 0;
+  while (month < 1) {
+    month += MONTHS_PER_YEAR;
+    carryBorrow--;
+  }
+  month--;
+  carryBorrow += month / MONTHS_PER_YEAR;
+  month %= MONTHS_PER_YEAR;
+  month++;
+  return carryBorrow;
+}
+
+int DateTime::month(int month) {
+  // Accepts a month of any positive or negative value.
+  // Returns the month as a number between 1 and 12
+  monthCarryBorrow(month);
+  return month;
 }
 
 long DateTime::daysInRange(DateTime alpha, DateTime omega) {
@@ -254,74 +311,175 @@ long DateTime::daysInRange(DateTime alpha, DateTime omega) {
   return days;
 }
 
+void DateTime::add(byte& attribute, long& interval, int limit) {
+  long magnitude = attribute + interval;
+  if (magnitude < 0) {
+    interval = magnitude / limit - 1;
+    magnitude -= interval * limit;
+  } else {
+    interval = magnitude / limit;
+  }
+  attribute = magnitude % limit;
+}
+
 DateTime& DateTime::add(long interval, Period period)
 {
-    long carry = 0;
-    int direction = (interval < 0) ? -1 : 1;
-    long intervalMagnitude = DateTime::abs(interval);
-//  // Should accept a positive or negative interval for any period.
-//  if (interval == 0) return *this;
-//  int newValue = 0;
-//  if (period == Millisecond) {
-//    int magnitude = _millisecond + interval;
-//    interval = magnitude / MILLISECONDS_PER_SECOND; // carry value
-//    _millisecond = magnitude % MILLISECONDS_PER_SECOND;
-//    if (_millisecond < 0) {
-//      _millisecond += MILLISECONDS_PER_SECOND;
-//      interval -= 1;
-//    }
-//    if (interval != 0) period = Second; // carry required
-//  }
-//  if (period == Second) {
-//    int magnitude = _second + interval;
-//    interval = magnitude / SECONDS_PER_MINUTE;
-//    newValue = magnitude % SECONDS_PER_MINUTE;
-//    if (newValue < 0) {
-//      _second = newValue + SECONDS_PER_MINUTE;
-//      interval -= 1;
-//    } else {
-//      _second = (byte)newValue;
-//    }
-//    if (interval != 0) period = Minute;
-//  }
-//  if (period == Minute) {
-//    int magnitude = _minute + interval;
-//    interval = magnitude / MINUTES_PER_HOUR;
-//    newValue = magnitude % MINUTES_PER_HOUR;
-//    if (newValue < 0) {
-//      _minute = newValue + MINUTES_PER_HOUR;
-//      interval -= 1;
-//    } else {
-//      _minute = (byte)newValue;
-//    }
-//    if (interval != 0) period = Hour;
-//  }
-//  if (period == Hour) {
-//    int magnitude = _hour + interval;
-//    interval = magnitude / HOURS_PER_DAY;
-//    newValue = magnitude % HOURS_PER_DAY;
-//    if (newValue < 0) {
-//      _hour = newValue + HOURS_PER_DAY;
-//      interval -= 1;
-//    } else {
-//      _hour = (byte)newValue;
-//    }
-//    if (interval != 0) period = Day;
-//  }
-    if (period == Day)
-    {
-        carry = 0;
-        if (intervalMagnitude >= DAYS_PER_400_YEARS) {
-            overflowed();
-            return *this;
-        }
-        while (intervalMagnitude >= DAYS_PER_100_YEARS_MIN) {
-          if ((year() + 100) > MAX_YEAR) {
-            overflowed();
-            return *this;
-          }
+  if (!interval) return *this;
+  if (period == Millisecond) {
+    long magnitude = _millisecond + interval;  // TODO: Doesn't handle magnitude going -ve.
+    interval = magnitude / MILLISECONDS_PER_SECOND;
+    int newValue = magnitude % MILLISECONDS_PER_SECOND;
+    if (newValue < 0) {
+      _millisecond = newValue + MILLISECONDS_PER_SECOND;
+      interval -= 1;
+    } else {
+      _millisecond = newValue;
+    }
+    if (interval) period = Second;  // Milliseconds cascade to Seconds
+  }
+  if (period == Second) {
+    add(_second, interval, SECONDS_PER_MINUTE);
+    if (interval) period = Minute;  // Seconds cascade to Minutes
+  }
+  if (period == Minute) {
+    add(_minute, interval, MINUTES_PER_HOUR);
+    if (interval) period = Hour;    // Minutes cascade to Hours
+  }
+  if (period == Hour) {
+    add(_hour, interval, HOURS_PER_DAY);
+    if (interval) period = Day;     // Hours cascade to Days
+  }
 
+  // DAYS
+  if (period == Day) {
+    if (interval < 0) { // go backwards
+      // 1. Get back to the first of the month if you can
+      while (_day > 1) {
+        interval++;
+        subtractOneDay();
+        if (!getStatus(Valid)) interval = 0; // Underflow.
+        if (!interval) break;
+      }
+      // 2. Jump by months to January
+      while (interval && _month > 1) {
+        int priorMonth = _month - 1;
+        int priorYear = year() + monthCarryBorrow(priorMonth);
+        int daysPriorMonth = daysInMonth(priorMonth, priorYear);
+        if (daysPriorMonth <= -interval) {
+          subtractOneMonth();
+          interval += daysPriorMonth;
+          if (!getStatus(Valid)) interval = 0; // Underflow.
+        } else break;
+//          _day += interval;
+//          interval = 0;
+//        }
+      }
+      // 3. Jump by years if you can
+      int daysPriorYear = daysInYear(year() - 1);
+      while (-interval >= daysPriorYear) {
+        interval += daysPriorYear;
+        subtractOneYear();
+        if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+        daysPriorYear = daysInYear(year() - 1); // TODO: HERE!
+      }
+      // 4. Jump by months if you can
+      while (-interval >= daysInMonth()) {
+        int priorMonth = _month - 1;
+        int priorYear = year() + monthCarryBorrow(priorMonth);
+        int daysPriorMonth = daysInMonth(priorMonth, priorYear);
+        interval += daysInMonth();
+        subtractOneMonth();
+        if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+      }
+      // 5. Jump by days to finish off
+      while (interval) {
+        interval++;
+        subtractOneDay();
+        if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+      }
+    } else {  // go forward
+      // 1. Get to the first of next month if you can
+      while (_day > 1) {
+        interval--;
+        addOneDay();
+        if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+        if (!interval) break;
+      }
+      // 2. Jump by months to January
+      while (interval && _month > 1) {
+        if (interval >= daysInMonth()) {
+          interval -= daysInMonth();
+          addOneMonth();
+          if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+        } else {
+          _day += interval;
+          interval = 0;
+          break;
         }
+      }
+      // 3. Jump by years if you can
+      while (interval >= daysInYear()) {
+        interval -= daysInYear();
+        addOneYear();
+        if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+      }
+      // 4. Jump by months if you can
+      while (interval >= daysInMonth()) {
+        interval -= daysInMonth();
+        addOneMonth();
+        if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+      }
+      // 5. Jump by days to finish off
+      while (interval) {
+        interval--;
+        addOneDay();
+        if (!getStatus(Valid)) interval = 0; // blew it. Overflowed.
+      }
+    }
+//    int daysLeftThisMonth = daysInMonth() - _day;
+////    if (_day < daysInMonth()) _day++;
+//    else {
+//      _day = 1;
+//      add(1, Month);
+//    }
+  }
+
+  if (period == Month) { // Days DON'T cascade into Months
+    long magnitude = _month + interval; // TODO: Doesn't handle negative mag.
+    interval = magnitude / MONTHS_PER_YEAR;
+    _month = (byte)(magnitude % MONTHS_PER_YEAR);
+    if (_month == 0) {
+        _month = MONTHS_PER_YEAR;
+        interval--;
+    }
+    if (interval != 0) period = Year;
+  }
+
+  if (period == Year) { // Months cascade into years
+    long testYear = interval + year();
+    if (testYear > MAX_YEAR || testYear < MIN_YEAR) overflowed();
+    else _year += interval;
+  }
+
+  // Correct for different month lengths, if required.
+  if (_day > daysInMonth()) _day = daysInMonth();
+
+  return *this;
+
+//    if (period == Day)
+//    {
+//        carry = 0;
+//        if (intervalMagnitude >= DAYS_PER_400_YEARS) {
+//            overflowed();
+//            return *this;
+//        }
+//        while (intervalMagnitude >= DAYS_PER_100_YEARS_MIN) {
+//          if ((year() + 100) > MAX_YEAR) {
+//            overflowed();
+//            return *this;
+//          }
+//
+//        }
 //    while(interval) { // TODO Replace iteration
 //      int magnitude = _day + interval;
 //      int daysInMonth = this->daysInMonth();
@@ -340,46 +498,46 @@ DateTime& DateTime::add(long interval, Period period)
 //          interval = 0;
 //      }
 //    }
-        if (carry != 0)
-        {
-            period = Year;
-            interval = carry;
-        }
-    }
+//        if (carry != 0)
+//        {
+//            period = Year;
+//            interval = carry;
+//        }
+//    }
 
-    if (period == Month) // TODO: Overflow checks
+//    if (period == Month) // TODO: Overflow checks
     // Can create erroneous dates eg. 31st Feb
     // See correction below
-    {
-        long magnitude = this->month() + interval;
-        interval = magnitude / MONTHS_PER_YEAR;
-        _month = (byte)(magnitude % MONTHS_PER_YEAR);
-        if (_month == 0)
-        {
-            _month = MONTHS_PER_YEAR;
-            interval--;
-        }
-        if (interval != 0) period = Year;
-    }
-
-    if (period == Year)
-    {
-        long testYear = interval + year();
-        if (testYear > MAX_YEAR || testYear < MIN_YEAR)   // overflow will occur
-        {
-          overflowed();
-          return *this;
-        }
-        else _year += interval;
-    }
-
-    // Correct for different month lengths, if required.
-    if (_day > daysInMonth())
-    {
-        setAdjustment(_day - daysInMonth());
-        _day = daysInMonth();
-    }
-    return *this;
+//    {
+//        long magnitude = this->month() + interval;
+//        interval = magnitude / MONTHS_PER_YEAR;
+//        _month = (byte)(magnitude % MONTHS_PER_YEAR);
+//        if (_month == 0)
+//        {
+//            _month = MONTHS_PER_YEAR;
+//            interval--;
+//        }
+//        if (interval != 0) period = Year;
+//    }
+//
+//    if (period == Year)
+//    {
+//        long testYear = interval + year();
+//        if (testYear > MAX_YEAR || testYear < MIN_YEAR)   // overflow will occur
+//        {
+//          overflowed();
+//          return *this;
+//        }
+//        else _year += interval;
+//    }
+//
+//    // Correct for different month lengths, if required.
+//    if (_day > daysInMonth())
+//    {
+//        setAdjustment(_day - daysInMonth());
+//        _day = daysInMonth();
+//    }
+//    return *this;
 }
 
 #ifndef ARDUINO
@@ -393,8 +551,12 @@ char* DateTime::intToString(int value)
 
 String& DateTime::toString()
 {
-    //http://arduino.cc/en/Reference/StringObject
-    String* output = new String();
+  //http://arduino.cc/en/Reference/StringObject
+  String* output;
+  if (!getStatus(Valid)) {
+    output = new String("8888-88-88 88:88:88:888");
+  } else {
+    output = new String();
     *output += intToString(year());
     *output += '-';
     if (_month < 10) *output += '0';
@@ -415,10 +577,11 @@ String& DateTime::toString()
     if (_millisecond < 100) *output += '0';
     if (_millisecond < 10) *output += '0';
     *output += intToString(_millisecond);
+  }
 
-    delete(_string);
-    _string = output;
-    return *_string;
+  delete(_string);
+  _string = output;
+  return *_string;
 }
 
 boolean DateTime::isBefore(const DateTime &other) const

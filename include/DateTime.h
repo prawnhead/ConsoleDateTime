@@ -71,15 +71,23 @@ class DateTime
 
     void overflowed();
     static long abs(long value);
+    static int daysInYear(int year);
+    int daysInYear() const;
     void addOneDay();
     void addOneMonth();
     void addOneYear();
+    void subtractOneDay();
+    void subtractOneMonth();
+    void subtractOneYear();
+    /* TESTED */ static int monthCarryBorrow(int& month);
+    static int month(int month);
 
 //    static byte leapDaysInRange(DateTime alpha, DateTime omega); // assumes alpha <= omega
 //    static long nonLeapDaysInRange(DateTime alpha, DateTime omega);  // assumes alpha <= omega
     static long daysInRange(DateTime alpha, DateTime omega);
 
     DateTime& add(long interval, Period period);
+    void add(byte& attribute, long& interval, int limit);
 #ifndef ARDUINO
     /* TESTED */ static char* intToString(int value);
 #endif
