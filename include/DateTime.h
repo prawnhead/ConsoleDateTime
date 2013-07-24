@@ -21,6 +21,7 @@
 #define MINUTES_PER_HOUR 60
 #define HOURS_PER_DAY 24
 #define DAYS_PER_400_YEARS 146097
+#define DAYS_PER_100_YEARS_MIN 36524
 #define MONTHS_PER_YEAR 12
 //#define DAYS_PER_NORMAL_YEAR 365
 #define MIN_YEAR 1900
@@ -68,11 +69,30 @@ class DateTime
     /* TESTED */ void setAdjustment(byte value);
     /* TESTED */ byte getAdjustment() const;
 
-    DateTime& add(long int interval, Period period);
+    void overflowed();
+    static long abs(long value);
+    void addOneDay();
+    void addOneMonth();
+    void addOneYear();
+
+//    static byte leapDaysInRange(DateTime alpha, DateTime omega); // assumes alpha <= omega
+//    static long nonLeapDaysInRange(DateTime alpha, DateTime omega);  // assumes alpha <= omega
+    static long daysInRange(DateTime alpha, DateTime omega);
+
+    DateTime& add(long interval, Period period);
 #ifndef ARDUINO
     /* TESTED */ static char* intToString(int value);
 #endif
     /* TESTED */ String& toString();
+
+    /* ASSUMED */ boolean isBefore(const DateTime &other) const;
+    /* ASSUMED */ boolean isEqualTo(const DateTime &other) const;
+    /* ASSUMED */ boolean operator == (const DateTime &other) const;
+    /* ASSUMED */ boolean operator != (const DateTime &other) const;
+    /* ASSUMED */ boolean operator <  (const DateTime &other) const;
+    /* ASSUMED */ boolean operator <= (const DateTime &other) const;
+    /* ASSUMED */ boolean operator >  (const DateTime &other) const;
+    /* ASSUMED */ boolean operator >= (const DateTime &other) const;
 
   protected:
     byte _year; // 0-255 represents 1900-2155
