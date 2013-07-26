@@ -66,28 +66,27 @@ class DateTime
 
     /* TESTED */ void setStatus(DateTime::Status status, boolean state);
     /* TESTED */ boolean getStatus(DateTime::Status status);
-    /* TESTED */ void setAdjustment(byte value);
-    /* TESTED */ byte getAdjustment() const;
+//    void setAdjustment(byte value);
+//    byte getAdjustment() const;
 
-    void overflowed();
-    static long abs(long value);
-    static int daysInYear(int year);
-    int daysInYear() const;
-    void addOneDay();
-    void addOneMonth();
-    void addOneYear();
-    void subtractOneDay();
-    void subtractOneMonth();
-    void subtractOneYear();
-    /* TESTED */ static int monthCarryBorrow(int& month);
+//    static long abs(long value);
+    /* TESTED */ static int daysInYear(int year);
+    /* TESTED */ int daysInYear() const;
+    DateTime& addOneDay();
+    DateTime& addOneMonth();
+    DateTime& addOneYear();
+    DateTime& subtractOneDay();
+    DateTime& subtractOneMonth();
+    DateTime& subtractOneYear();
+    static int monthCarryBorrow(int& month);
     static int month(int month);
 
 //    static byte leapDaysInRange(DateTime alpha, DateTime omega); // assumes alpha <= omega
 //    static long nonLeapDaysInRange(DateTime alpha, DateTime omega);  // assumes alpha <= omega
     static long daysInRange(DateTime alpha, DateTime omega);
 
+    static void add(byte& attribute, long& interval, int limit);
     DateTime& add(long interval, Period period);
-    void add(byte& attribute, long& interval, int limit);
 #ifndef ARDUINO
     /* TESTED */ static char* intToString(int value);
 #endif
@@ -107,8 +106,10 @@ class DateTime
     byte _month, _day, _hour, _minute, _second, _status;
     int _millisecond;
     String* _string;
+
   private:
-    boolean isValid();
+    /* TESTED */ boolean isValid();
+    /* TESTED */ void overflowed();
 };
 
 #endif // DATETIME_H

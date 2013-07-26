@@ -13,6 +13,11 @@ DateTime::DateTime()
 
 DateTime::DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond)
 {
+  if (year < MIN_YEAR || year > MAX_YEAR) {
+    setEpoch();
+    setStatus(Valid, false);
+    setStatus(Overflow, true);
+  } else {
     _year = year - MIN_YEAR;
     _month = month;
     _day = day;
@@ -23,6 +28,7 @@ DateTime::DateTime(int year, byte month, byte day, byte hour, byte minute, byte 
     _string = 0;
     _status = Valid;
     if (!isValid()) setEpoch();
+  }
 }
 
 void DateTime::setEpoch()
@@ -137,7 +143,7 @@ byte DateTime::daysInMonth(byte month, int year)
 void DateTime::setStatus(DateTime::Status status, boolean state)
 {
     if (state) _status |= status;
-    else _status &= (255 - status);
+    else _status &= ~status;
 }
 
 boolean DateTime::getStatus(DateTime::Status status)
@@ -145,33 +151,33 @@ boolean DateTime::getStatus(DateTime::Status status)
     return (_status & status);
 }
 
-void DateTime::setAdjustment(byte value)
-{
-    switch (value)
-    {
-    case 0:
-        setStatus(AdjustedBit0, false);
-        setStatus(AdjustedBit1, false);
-        break;
-    case 1:
-        setStatus(AdjustedBit0, true);
-        setStatus(AdjustedBit1, false);
-        break;
-    case 2:
-        setStatus(AdjustedBit0, false);
-        setStatus(AdjustedBit1, true);
-        break;
-    case 3:
-        setStatus(AdjustedBit0, true);
-        setStatus(AdjustedBit1, true);
-        break;
-    }
-}
-
-byte DateTime::getAdjustment() const
-{
-    return _status & ADJUSTMENT_MASK;
-}
+//void DateTime::setAdjustment(byte value)
+//{
+//    switch (value)
+//    {
+//    case 0:
+//        setStatus(AdjustedBit0, false);
+//        setStatus(AdjustedBit1, false);
+//        break;
+//    case 1:
+//        setStatus(AdjustedBit0, true);
+//        setStatus(AdjustedBit1, false);
+//        break;
+//    case 2:
+//        setStatus(AdjustedBit0, false);
+//        setStatus(AdjustedBit1, true);
+//        break;
+//    case 3:
+//        setStatus(AdjustedBit0, true);
+//        setStatus(AdjustedBit1, true);
+//        break;
+//    }
+//}
+//
+//byte DateTime::getAdjustment() const
+//{
+//    return _status & ADJUSTMENT_MASK;
+//}
 
 void DateTime::overflowed() {
   setEpoch();
@@ -179,10 +185,10 @@ void DateTime::overflowed() {
   setStatus(Overflow, true);
 }
 
-long DateTime::abs(long value) {
-  if (value < 0) return -value;
-  return value;
-}
+//long DateTime::abs(long value) {
+//  if (value < 0) return -value;
+//  return value;
+//}
 
 int DateTime::daysInYear(int year) {
   if (isLeapYear(year)) return 366;
@@ -229,50 +235,60 @@ int DateTime::daysInYear() const {
 //  if ()
 //}
 
-void DateTime::addOneDay() {
+DateTime& DateTime::addOneDay() {
   if (_day < daysInMonth()) _day++;
   else {
     _day = 1;
     addOneMonth();
   }
+  return *this;
 }
 
-void DateTime::addOneMonth() {
+DateTime& DateTime::addOneMonth() {
   // Precondition: Must not be used on days after 28th of any month
   if (_month < MONTHS_PER_YEAR) _month++;
   else {
     _month = 1;
     addOneYear();
   }
+  return *this;
 }
 
-void DateTime::addOneYear() {
+DateTime& DateTime::addOneYear() {
   // Precondition: Must not be used on days after 28th of any month
-  if (_year < MAX_YEAR) _year++;
-  else overflowed();
+  if (year() < MAX_YEAR)
+    _year++;
+  else
+    overflowed();
+  return *this;
 }
 
-void DateTime::subtractOneDay() {
+DateTime& DateTime::subtractOneDay() {
   if (_day > 1) _day--;
   else {
     subtractOneMonth();
-    _day = daysInMonth();
+    if(getStatus(Valid)) _day = daysInMonth();
   }
+  return *this;
 }
 
-void DateTime::subtractOneMonth() {
+DateTime& DateTime::subtractOneMonth() {
   // Precondition: Must not be used on days after 28th of any month
   if (_month > 1) _month--;
   else {
     subtractOneYear();
-    _month = MONTHS_PER_YEAR;
+    if(getStatus(Valid)) _month = MONTHS_PER_YEAR;
   }
+  return *this;
 }
 
-void DateTime::subtractOneYear() {
+DateTime& DateTime::subtractOneYear() {
   // Precondition: Must not be used on days after 28th of any month
-  if (_year < MIN_YEAR) _year--;
-  else overflowed();
+  if (year() > MIN_YEAR)
+    _year--;
+  else
+    overflowed();
+  return *this;
 }
 
 int DateTime::monthCarryBorrow(int& month) {
@@ -554,7 +570,7 @@ String& DateTime::toString()
   //http://arduino.cc/en/Reference/StringObject
   String* output;
   if (!getStatus(Valid)) {
-    output = new String("8888-88-88 88:88:88:888");
+    output = new String("8888-88-88 88:88:88.888");
   } else {
     output = new String();
     *output += intToString(year());
