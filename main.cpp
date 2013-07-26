@@ -461,6 +461,45 @@ int main()
   testAddByte(0, -23, 24, 1, -1);
   testAddByte(0, -100, 24, 20, -5);
 
+  printf("Testing: monthCarryBorrow()\n");
+  testMonthCarryBorrow(1, 1, 0);
+  testMonthCarryBorrow(2, 2, 0);
+  testMonthCarryBorrow(3, 3, 0);
+  testMonthCarryBorrow(4, 4, 0);
+  testMonthCarryBorrow(5, 5, 0);
+  testMonthCarryBorrow(6, 6, 0);
+  testMonthCarryBorrow(7, 7, 0);
+  testMonthCarryBorrow(8, 8, 0);
+  testMonthCarryBorrow(9, 9, 0);
+  testMonthCarryBorrow(10, 10, 0);
+  testMonthCarryBorrow(11, 11, 0);
+  testMonthCarryBorrow(12, 12, 0);
+  testMonthCarryBorrow(13, 1, 1);
+  testMonthCarryBorrow(14, 2, 1);
+  testMonthCarryBorrow(15, 3, 1);
+  testMonthCarryBorrow(16, 4, 1);
+  testMonthCarryBorrow(17, 5, 1);
+  testMonthCarryBorrow(18, 6, 1);
+  testMonthCarryBorrow(19, 7, 1);
+  testMonthCarryBorrow(20, 8, 1);
+  testMonthCarryBorrow(21, 9, 1);
+  testMonthCarryBorrow(22, 10, 1);
+  testMonthCarryBorrow(23, 11, 1);
+  testMonthCarryBorrow(24, 12, 1);
+  testMonthCarryBorrow(25, 1,2);
+  testMonthCarryBorrow(0, 12, -1);
+  testMonthCarryBorrow(-1, 11, -1);
+  testMonthCarryBorrow(-2, 10, -1);
+  testMonthCarryBorrow(-3, 9, -1);
+  testMonthCarryBorrow(-4, 8, -1);
+  testMonthCarryBorrow(-5, 7, -1);
+  testMonthCarryBorrow(-6, 6, -1);
+  testMonthCarryBorrow(-7, 5, -1);
+  testMonthCarryBorrow(-8, 4, -1);
+  testMonthCarryBorrow(-9, 3, -1);
+  testMonthCarryBorrow(-10, 2, -1);
+  testMonthCarryBorrow(-11, 1, -1);
+
 // TESTING CONSTRUCTORS
   printf("Testing: Constructors plus setEpoch(), setStatus(), getStatus(), isValid(), overflowed()\n year(), month(), day(), hour(), minute(), second(), millisecond()\n");
   // Test create valid with default constructor
@@ -543,99 +582,59 @@ int main()
   // Decrement over invalid leap days
   testDateTime(DateTime(1900, 3, 1, 0, 0, 0, 0).add(-1, DateTime::Day), DateTime(1900, 2, 28, 0, 0, 0, 0), "1900 non leap day");
   testDateTime(DateTime(2100, 3, 1, 0, 0, 0, 0).add(-1, DateTime::Day), DateTime(2100, 2, 28, 0, 0, 0, 0), "2100 non leap day");
+  // Long interval tests
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(90061001, DateTime::Millisecond), DateTime(2000, 1, 2, 1, 1, 1, 1), "Add 90,061,001 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(900610010, DateTime::Millisecond), DateTime(2000, 1, 11, 10, 10, 10, 10), "Add 900,610,010 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(0, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 0, 0, 0), "Add 0 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 0, 0, 1), "Add 1 millisecond");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1500, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 0, 1, 500), "Add 1500 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(60000, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 1, 0, 0), "Add 60000 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(3600000, DateTime::Millisecond), DateTime(2000, 1, 1, 1, 0, 0, 0), "Add 3600000 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(36000000, DateTime::Millisecond), DateTime(2000, 1, 1, 10, 0, 0, 0), "Add 36000000 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-1, DateTime::Millisecond), DateTime(2000, 1, 1, 23, 59, 59, 998), "Subtract 1 millisecond");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-1500, DateTime::Millisecond), DateTime(2000, 1, 1, 23, 59, 58, 499), "Subtract 1500 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-60000, DateTime::Millisecond), DateTime(2000, 1, 1, 23, 58, 59, 999), "Subtract 60000 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-3600000, DateTime::Millisecond), DateTime(2000, 1, 1, 22, 59, 59, 999), "Subtract 3600000 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-36000000, DateTime::Millisecond), DateTime(2000, 1, 1, 13, 59, 59, 999), "Subtract 36000000 milliseconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(0, DateTime::Second), DateTime(2000, 1, 1, 0, 0, 0, 0), "Add 0 seconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Second), DateTime(2000, 1, 1, 0, 0, 1, 0), "Add 1 second");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(100, DateTime::Second), DateTime(2000, 1, 1, 0, 1, 40, 0), "Add 100 seconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(3600, DateTime::Second), DateTime(2000, 1, 1, 1, 0, 0, 0), "Add 3600 seconds");
+  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(36000, DateTime::Second), DateTime(2000, 1, 1, 10, 0, 0, 0), "Add 36000 seconds");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-1, DateTime::Second), DateTime(2000, 1, 1, 23, 59, 58, 999), "Subtract 1 second");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-100, DateTime::Second), DateTime(2000, 1, 1, 23, 58, 19, 999), "Subtract 100 seconds");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-3600, DateTime::Second), DateTime(2000, 1, 1, 22, 59, 59, 999), "Subtract 3600 seconds");
+  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-36000, DateTime::Second), DateTime(2000, 1, 1, 13, 59, 59, 999), "Subtract 36000 seconds");
+  testDateTime(DateTime(1999, 2, 28, 0, 0, 0, 0).add(365, DateTime::Day), DateTime(2000, 2, 28, 0, 0, 0, 0), "Add 365 days");
+  testDateTime(DateTime(1999, 2, 28, 0, 0, 0, 0).add(1000, DateTime::Day), DateTime(2001, 11, 24, 0, 0, 0, 0), "Add 1000 days");
+  testDateTime(DateTime(1900, 1, 1, 0, 0, 0, 0).add(93501, DateTime::Day), DateTime(2155, 12, 31, 0, 0, 0, 0), "Add 93501 days"); // Full range
+  testDateTime(DateTime(2000, 2, 28, 0, 0, 0, 0).add(-365, DateTime::Day), DateTime(1999, 2, 28, 0, 0, 0, 0), "Subtract 365 days");
+  testDateTime(DateTime(2001, 11, 24, 0, 0, 0, 0).add(-1000, DateTime::Day), DateTime(1999, 2, 28, 0, 0, 0, 0), "Subtract 1000 days");
+  testDateTime(DateTime(2155, 12, 31, 0, 0, 0, 0).add(-93501, DateTime::Day), DateTime(1900, 1, 1, 0, 0, 0, 0), "Subtract 93501 days"); // Full range
   // addOneDay()
   testDateTime(DateTime(1900, 1, 1, 0, 0, 0, 0).addOneDay(), DateTime(1900, 1, 2, 0, 0, 0, 0), "addOneDay()");
+  testDateTime(DateTime(1900, 12, 31, 0, 0, 0, 0).addOneDay(), DateTime(1901, 1, 1, 0, 0, 0, 0), "addOneDay() rollover");
   testInvalidDateTime(DateTime(2155, 12, 31, 0, 0, 0, 0).addOneDay(), true);
   // addOneMonth()
   testDateTime(DateTime(1900, 1, 1, 0, 0, 0, 0).addOneMonth(), DateTime(1900, 2, 1, 0, 0, 0, 0), "addOneMonth()");
+  testDateTime(DateTime(1900, 12, 1, 0, 0, 0, 0).addOneMonth(), DateTime(1901, 1, 1, 0, 0, 0, 0), "addOneMonth() rollover");
   testInvalidDateTime(DateTime(2155, 12, 1, 0, 0, 0, 0).addOneMonth(), true);
   // addOneYear()
   testDateTime(DateTime(1900, 1, 1, 0, 0, 0, 0).addOneYear(), DateTime(1901, 1, 1, 0, 0, 0, 0), "addOneYear()");
   testInvalidDateTime(DateTime(2155, 1, 1, 0, 0, 0, 0).addOneYear(), true);
   // subtractOneDay()
   testDateTime(DateTime(1900, 1, 2, 0, 0, 0, 0).subtractOneDay(), DateTime(1900, 1, 1, 0, 0, 0, 0), "subtractOneDay()");
+  testDateTime(DateTime(1901, 1, 1, 0, 0, 0, 0).subtractOneDay(), DateTime(1900, 12, 31, 0, 0, 0, 0), "subtractOneDay() rollover");
   testInvalidDateTime(DateTime(1900, 1, 1, 0, 0, 0, 0).subtractOneDay(), true);
   // subtractOneMonth()
   testDateTime(DateTime(1900, 2, 1, 0, 0, 0, 0).subtractOneMonth(), DateTime(1900, 1, 1, 0, 0, 0, 0), "subtractOneMonth()");
+  testDateTime(DateTime(1900, 2, 1, 0, 0, 0, 0).subtractOneMonth(), DateTime(1900, 1, 1, 0, 0, 0, 0), "subtractOneMonth() rollover");
   testInvalidDateTime(DateTime(1900, 1, 31, 0, 0, 0, 0).subtractOneMonth(), true);
   // subtractOneYear()
   testDateTime(DateTime(1901, 1, 1, 0, 0, 0, 0).subtractOneYear(), DateTime(1900, 1, 1, 0, 0, 0, 0), "subtractOneYear()");
   testInvalidDateTime(DateTime(1900, 12, 31, 0, 0, 0, 0).subtractOneYear(), true);
 
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(90061001, DateTime::Millisecond), DateTime(2000, 1, 2, 1, 1, 1, 1), "Add 90,061,001 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(900610010, DateTime::Millisecond), DateTime(2000, 1, 11, 10, 10, 10, 10), "Add 900,610,010 milliseconds");
-
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(0, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 0, 0, 0), "Add 0 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 0, 0, 1), "Add 1 millisecond");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1500, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 0, 1, 500), "Add 1500 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(60000, DateTime::Millisecond), DateTime(2000, 1, 1, 0, 1, 0, 0), "Add 60000 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(3600000, DateTime::Millisecond), DateTime(2000, 1, 1, 1, 0, 0, 0), "Add 3600000 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(36000000, DateTime::Millisecond), DateTime(2000, 1, 1, 10, 0, 0, 0), "Add 36000000 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-1, DateTime::Millisecond), DateTime(2000, 1, 1, 23, 59, 59, 998), "Subtract 1 millisecond");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-1500, DateTime::Millisecond), DateTime(2000, 1, 1, 23, 59, 58, 499), "Subtract 1500 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-60000, DateTime::Millisecond), DateTime(2000, 1, 1, 23, 58, 59, 999), "Subtract 60000 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-3600000, DateTime::Millisecond), DateTime(2000, 1, 1, 22, 59, 59, 999), "Subtract 3600000 milliseconds");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-36000000, DateTime::Millisecond), DateTime(2000, 1, 1, 13, 59, 59, 999), "Subtract 36000000 milliseconds");
-//
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(0, DateTime::Second), DateTime(2000, 1, 1, 0, 0, 0, 0), "Add 0 seconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Second), DateTime(2000, 1, 1, 0, 0, 1, 0), "Add 1 second");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(100, DateTime::Second), DateTime(2000, 1, 1, 0, 1, 40, 0), "Add 100 seconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(3600, DateTime::Second), DateTime(2000, 1, 1, 1, 0, 0, 0), "Add 3600 seconds");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(36000, DateTime::Second), DateTime(2000, 1, 1, 10, 0, 0, 0), "Add 36000 seconds");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-1, DateTime::Second), DateTime(2000, 1, 1, 23, 59, 58, 999), "Subtract 1 second");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-100, DateTime::Second), DateTime(2000, 1, 1, 23, 58, 19, 999), "Subtract 100 seconds");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-3600, DateTime::Second), DateTime(2000, 1, 1, 22, 59, 59, 999), "Subtract 3600 seconds");
-//  testDateTime(DateTime(2000, 1, 1, 23, 59, 59, 999).add(-36000, DateTime::Second), DateTime(2000, 1, 1, 13, 59, 59, 999), "Subtract 36000 seconds");
-
-//  // From first of month date
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Minute), DateTime(2000, 1, 1, 0, 1, 0, 0), "Add 1 minute");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Hour), DateTime(2000, 1, 1, 1, 0, 0, 0), "Add 1 hour");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Day), DateTime(2000, 1, 2, 0, 0, 0, 0), "Add 1 day");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Month), DateTime(2000, 2, 1, 0, 0, 0, 0), "Add 1 month");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(1, DateTime::Year), DateTime(2001, 1, 1, 0, 0, 0, 0), "Add 1 year");
-//
-//  // From last in (long) month date
-//  testDateTime(DateTime(2000, 1, 31, 0, 0, 0, 0).add(1, DateTime::Day), DateTime(2000, 2, 1, 0, 0, 0, 0), "Add 1 day");
-//  testDateTime(DateTime(2000, 1, 31, 0, 0, 0, 0).add(1, DateTime::Month), DateTime(2000, 2, 29, 0, 0, 0, 0), "Add 1 month");  // leap year
-//  testDateTime(DateTime(2001, 1, 31, 0, 0, 0, 0).add(1, DateTime::Month), DateTime(2001, 2, 28, 0, 0, 0, 0), "Add 1 month");  // non leap year
-//  testDateTime(DateTime(2000, 1, 31, 0, 0, 0, 0).add(1, DateTime::Year), DateTime(2001, 1, 31, 0, 0, 0, 0), "Add 1 year");
-//
-//  // Leap year testing
-//  testDateTime(DateTime(2000, 2, 28, 23, 59, 59, 999).add(1, DateTime::Millisecond), DateTime(2000, 2, 29, 0, 0, 0, 0), "Add 1 milli end of day before leap");
-//  testDateTime(DateTime(2000, 2, 29, 23, 59, 59, 999).add(1, DateTime::Millisecond), DateTime(2000, 3, 1, 0, 0, 0, 0), "Add 1 milli end of leap day");
-//
-//  testDateTime(DateTime(1999, 2, 28, 0, 0, 0, 0).add(365, DateTime::Day), DateTime(2000, 2, 28, 0, 0, 0, 0), "Add 365 days");
-//  testDateTime(DateTime(1999, 2, 28, 0, 0, 0, 0).add(1000, DateTime::Day), DateTime(2001, 11, 24, 0, 0, 0, 0), "Add 1000 days");
-//  testDateTime(DateTime(1900, 1, 1, 0, 0, 0, 0).add(93500, DateTime::Day), DateTime(2155, 12, 30, 0, 0, 0, 0), "Add 93500 days");
-
-//  // From first of month date
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(-1, DateTime::Minute), DateTime(1999, 12, 31, 23, 59, 0, 0), "Subtract 1 minute");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(-1, DateTime::Hour), DateTime(1999, 12, 31, 23, 0, 0, 0), "Subtract 1 hour");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(-1, DateTime::Day), DateTime(1999, 12, 31, 0, 0, 0, 0), "Subtract 1 day");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(-1, DateTime::Month), DateTime(1999, 12, 1, 0, 0, 0, 0), "Subtract 1 month");
-//  testDateTime(DateTime(2000, 1, 1, 0, 0, 0, 0).add(-1, DateTime::Year), DateTime(1999, 1, 1, 0, 0, 0, 0), "Subtract 1 year");
-
-  // From last in (long) month date
-//  testDateTime(DateTime(2000, 2, 1, 0, 0, 0, 0).add(-1, DateTime::Day), DateTime(2000, 1, 31, 0, 0, 0, 0), "Subtract 1 day");
-//  testDateTime(DateTime(2000, 2, 29, 0, 0, 0, 0).add(-1, DateTime::Month), DateTime(2000, 1, 29, 0, 0, 0, 0), "Subtract 1 month");  // leap year
-//  testDateTime(DateTime(2001, 2, 28, 0, 0, 0, 0).add(-1, DateTime::Month), DateTime(2001, 1, 28, 0, 0, 0, 0), "Subtract 1 month");  // non leap year
-//  testDateTime(DateTime(2001, 1, 31, 0, 0, 0, 0).add(-1, DateTime::Year), DateTime(2000, 1, 31, 0, 0, 0, 0), "Subtract 1 year");
-//
-//  // Leap year testing
-//  testDateTime(DateTime(2000, 2, 29, 0, 0, 0, 0).add(-1, DateTime::Millisecond), DateTime(2000, 2, 28, 23, 59, 59, 999), "Subtract 1 milli end of day before leap");
-//  testDateTime(DateTime(2000, 3, 1, 0, 0, 0, 0).add(-1, DateTime::Millisecond), DateTime(2000, 2, 29, 23, 59, 59, 999), "Subtract 1 milli end of leap day");
-//
-//  testDateTime(DateTime(2000, 2, 28, 0, 0, 0, 0).add(-365, DateTime::Day), DateTime(1999, 2, 28, 0, 0, 0, 0), "Subtract 365 days");
-//  testDateTime(DateTime(2001, 11, 24, 0, 0, 0, 0).add(-1000, DateTime::Day), DateTime(1999, 2, 28, 0, 0, 0, 0), "Subtract 1000 days");
-//  testDateTime(DateTime(2155, 12, 30, 0, 0, 0, 0).add(-93500, DateTime::Day), DateTime(1900, 1, 1, 0, 0, 0, 0), "Subtract 93500 days");
-
-//  testAddOneDay(DateTime(2000, 1, 1, 0, 0, 0, 0), DateTime(2000, 1, 2, 0, 0, 0, 0));
-//  testAddOneDay(DateTime(2000, 1, 30, 0, 0, 0, 0), DateTime(2000, 1, 31, 0, 0, 0, 0));
-//  testAddOneDay(DateTime(2000, 1, 31, 0, 0, 0, 0), DateTime(2000, 2, 1, 0, 0, 0, 0));
-//  testAddOneDay(DateTime(2000, 2, 28, 0, 0, 0, 0), DateTime(2000, 2, 29, 0, 0, 0, 0));
-//  testAddOneDay(DateTime(2000, 2, 29, 0, 0, 0, 0), DateTime(2000, 3, 1, 0, 0, 0, 0));
-//  testAddOneDay(DateTime(2000, 12, 31, 0, 0, 0, 0), DateTime(2001, 1, 1, 0, 0, 0, 0));
-
+  // Test daysInRange()
 //  DateTime alpha = DateTime(2001, 01, 01, 0, 0, 0, 0);
 //  DateTime omega = DateTime(2001, 01, 01, 0, 0, 0, 0);
 //  testDaysInRange(alpha, omega, 0);
@@ -659,118 +658,6 @@ int main()
 //  alpha = DateTime(2000, 01, 01, 0, 0, 0, 0);
 //  omega = DateTime(2100, 01, 01, 0, 0, 0, 0);
 //  testDaysInRange(alpha, omega, 36525);
-
-
-
-//  DateTime test;
-//
-//  // Tests appear in the order of dependency. Functions with no dependencies are tested first,
-//  // then functions depending on already-tested functions.
-//  // See blog post on arduinoetcetera.blogspot.com.au
-//
-//  printf("Testing: intToString()\n");
-//  // In-range tests
-//  testIntToString(0, "0");
-//  testIntToString(1, "1");
-//  testIntToString(-1, "-1");
-//  testIntToString(32767, "32767");
-//  testIntToString(-32768, "-32768");
-//  // Out-of-range tests
-//  testIntToString(40000, "-25536");  // wrap around expected
-//  testIntToString(-40000, "25536");  // wrap around expected
-//
-//  printf("Testing: toString()\n");
-//  // Tests must be in-range only as range checking will be added later.
-//  testToString(DateTime(1900, 1, 1, 0, 0, 0, 0), "1900-01-01 00:00:00.000");  // Earliest possible
-//  testToString(DateTime(2155, 12, 31, 23, 59, 59, 999), "2155-12-31 23:59:59.999");  // Latest possible
-//  testToString(DateTime(2013, 7, 23, 11, 1, 34, 935), "2013-07-23 11:01:34.935");  // Random (today)
-//
-//  printf("Testing: getStatus() & setStatus()\n");
-//  test = DateTime();  // default is valid
-//  testGetStatus(test, DateTime::Valid, true);
-//  testGetStatus(test, DateTime::Overflow, false);
-//  test.add(300, DateTime::Year);  // will cause year overflow
-//  testGetStatus(test, DateTime::Valid, false);
-//  testGetStatus(test, DateTime::Overflow, true);
-//
-//  printf("Testing: leapDaysInRange()\n");
-//  DateTime alpha;
-//  DateTime omega;
-//  alpha = DateTime(2004, 1, 1, 0, 0, 0, 0);
-//  omega = DateTime(2004, 1, 1, 0, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 0); // Zero day range
-//  omega = DateTime(2004, 3, 1, 0, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 1); // Only 2004 counts
-//  omega = DateTime(2008, 3, 1, 0, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 2); // Counts 2004, 2008
-//  alpha = DateTime(2004, 2, 29, 0, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 2); // Counts 2004, 2008
-//  alpha = DateTime(1900, 1, 1, 0, 0, 0, 0);
-//  omega = DateTime(1904, 1, 1, 0, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 0); // 1900 does not count
-//  alpha = DateTime(1904, 2, 29, 0, 0, 0, 0);
-//  omega = DateTime(1904, 3, 1, 0, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 1); // Exactly one whole leap day
-//  alpha = DateTime(1900, 1, 1, 0, 0, 0, 0);
-//  omega = DateTime(2000, 12, 31, 0, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 25);  // Leap years 1904-2000 (25)
-//  alpha = DateTime(1904, 2, 29, 12, 0, 0, 0);
-//  omega = DateTime(1912, 2, 29, 12, 0, 0, 0);
-//  testLeapDaysInRange(alpha, omega, 1); // Only 1908 counts
-//
-//  printf("Testing: getAdjustment() & setAdjustment()\n"); // TODO: Write tests
-//
-//  printf("Testing: add()\n"); // TODO: Complete tests
-//  test = DateTime(2000, 2, 29, 0, 0, 0, 0);
-//  test.add(1, DateTime::Year);
-//  testDateTimeValues(2001, 2, 28, 0, 0, 0, 0, test, "1 year from leap day");
-//  testGetAdjustment(test, 1);
-//  test = DateTime(2000, 1, 31, 0, 0, 0, 0);
-//  test.add(1, DateTime::Month);
-//  testDateTimeValues(2000, 2, 29, 0, 0, 0, 0, test, "1 month from Jan 31 on leap year");
-//  testGetAdjustment(test, 2);
-//  test = DateTime(2001, 1, 31, 0, 0, 0, 0);
-//  test.add(1, DateTime::Month);
-//  testDateTimeValues(2001, 2, 28, 0, 0, 0, 0, test, "1 month from Jan 31 on non leap year");
-//  testGetAdjustment(test, 3);
-
-//  testMonthCarryBorrow(1, 1, 0);
-//  testMonthCarryBorrow(2, 2, 0);
-//  testMonthCarryBorrow(3, 3, 0);
-//  testMonthCarryBorrow(4, 4, 0);
-//  testMonthCarryBorrow(5, 5, 0);
-//  testMonthCarryBorrow(6, 6, 0);
-//  testMonthCarryBorrow(7, 7, 0);
-//  testMonthCarryBorrow(8, 8, 0);
-//  testMonthCarryBorrow(9, 9, 0);
-//  testMonthCarryBorrow(10, 10, 0);
-//  testMonthCarryBorrow(11, 11, 0);
-//  testMonthCarryBorrow(12, 12, 0);
-//  testMonthCarryBorrow(13, 1, 1);
-//  testMonthCarryBorrow(14, 2, 1);
-//  testMonthCarryBorrow(15, 3, 1);
-//  testMonthCarryBorrow(16, 4, 1);
-//  testMonthCarryBorrow(17, 5, 1);
-//  testMonthCarryBorrow(18, 6, 1);
-//  testMonthCarryBorrow(19, 7, 1);
-//  testMonthCarryBorrow(20, 8, 1);
-//  testMonthCarryBorrow(21, 9, 1);
-//  testMonthCarryBorrow(22, 10, 1);
-//  testMonthCarryBorrow(23, 11, 1);
-//  testMonthCarryBorrow(24, 12, 1);
-//  testMonthCarryBorrow(25, 1,2);
-//  testMonthCarryBorrow(0, 12, -1);
-//  testMonthCarryBorrow(-1, 11, -1);
-//  testMonthCarryBorrow(-2, 10, -1);
-//  testMonthCarryBorrow(-3, 9, -1);
-//  testMonthCarryBorrow(-4, 8, -1);
-//  testMonthCarryBorrow(-5, 7, -1);
-//  testMonthCarryBorrow(-6, 6, -1);
-//  testMonthCarryBorrow(-7, 5, -1);
-//  testMonthCarryBorrow(-8, 4, -1);
-//  testMonthCarryBorrow(-9, 3, -1);
-//  testMonthCarryBorrow(-10, 2, -1);
-//  testMonthCarryBorrow(-11, 1, -1);
 
   if (tests == 0) cout << "No tests performed." << endl;
   else {

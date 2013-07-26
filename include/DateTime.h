@@ -28,7 +28,7 @@
 #define MAX_YEAR 2155
 #define ADJUSTMENT_MASK 0x03
 
-/* NOTES:
+/* Notes:
  * A month is defined as a calendar month.
  * Normal example:
  * DateTime(2001, 1, 15, 0, 0, 0, 0).add(1, DateTime::Month) == DateTime(2001, 2, 15, 0, 0, 0, 0)
@@ -72,21 +72,21 @@ class DateTime
 //    static long abs(long value);
     /* TESTED */ static int daysInYear(int year);
     /* TESTED */ int daysInYear() const;
-    DateTime& addOneDay();
-    DateTime& addOneMonth();
-    DateTime& addOneYear();
-    DateTime& subtractOneDay();
-    DateTime& subtractOneMonth();
-    DateTime& subtractOneYear();
-    static int monthCarryBorrow(int& month);
-    static int month(int month);
+    /* TESTED */ DateTime& addOneDay();
+    /* TESTED */ DateTime& addOneMonth();
+    /* TESTED */ DateTime& addOneYear();
+    /* TESTED */ DateTime& subtractOneDay();
+    /* TESTED */ DateTime& subtractOneMonth();
+    /* TESTED */ DateTime& subtractOneYear();
+    /* TESTED */ static int monthCarryBorrow(int& month);
+//    static int month(int month);
 
 //    static byte leapDaysInRange(DateTime alpha, DateTime omega); // assumes alpha <= omega
 //    static long nonLeapDaysInRange(DateTime alpha, DateTime omega);  // assumes alpha <= omega
     static long daysInRange(DateTime alpha, DateTime omega);
 
-    static void add(byte& attribute, long& interval, int limit);
-    DateTime& add(long interval, Period period);
+    /* TESTED */ static void add(byte& attribute, long& interval, int limit);
+    /* ASSUMED */ DateTime& add(long interval, Period period);
 #ifndef ARDUINO
     /* TESTED */ static char* intToString(int value);
 #endif

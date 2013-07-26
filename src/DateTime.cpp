@@ -307,12 +307,12 @@ int DateTime::monthCarryBorrow(int& month) {
   return carryBorrow;
 }
 
-int DateTime::month(int month) {
-  // Accepts a month of any positive or negative value.
-  // Returns the month as a number between 1 and 12
-  monthCarryBorrow(month);
-  return month;
-}
+//int DateTime::month(int month) {
+//  // Accepts a month of any positive or negative value.
+//  // Returns the month as a number between 1 and 12
+//  monthCarryBorrow(month);
+//  return month;
+//}
 
 long DateTime::daysInRange(DateTime alpha, DateTime omega) {
   // Precondition: alpha < omega
