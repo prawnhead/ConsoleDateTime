@@ -1,19 +1,19 @@
 #ifndef DATETIME_H
 #define DATETIME_H
 #ifndef ARDUINO
-  #include <iostream>
-  #include <string>
-  #include <cstdio>
-  #define F(X) X
-  #define PROGMEM
-  #define int int16_t
-  using namespace std;
-  typedef uint8_t byte;
-  typedef string String;
-  typedef bool boolean;
+#include <iostream>
+#include <string>
+#include <cstdio>
+#define F(X) X
+#define PROGMEM
+#define int int16_t
+using namespace std;
+typedef uint8_t byte;
+typedef string String;
+typedef bool boolean;
 #else
-  #include <Arduino.h>
-  #define intToString(X) X
+#include <Arduino.h>
+#define intToString(X) X
 #endif
 
 #define MILLISECONDS_PER_SECOND 1000
@@ -38,78 +38,78 @@
  * the getAdjustment() value is set; this indicates the number of days that were subtracted.
  * This occurs when moving by Months or Years from a month with more days to onw with less.
  */
-class DateTime
-{
-  public:
-    enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
-    enum Status { AdjustedBit0 = 1, AdjustedBit1 = 2, Valid = 4, Overflow = 8};
-    //enum DayOfWeek { Error, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
-    //enum TimeSource { Compiler, NMEA };
+class DateTime {
+public:
+	enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
+	enum Status { AdjustedBit0 = 1, AdjustedBit1 = 2, Valid = 4, Overflow = 8};
+	//enum DayOfWeek { Error, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
+	//enum TimeSource { Compiler, NMEA };
 
-    /* TESTED */ DateTime();
-    /* TESTED */ DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond);
+	/* TESTED */	DateTime();
+	/* TESTED */	DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond);
 
-    /* TESTED */ void setEpoch(); // reset to default date/time
+	/* TESTED */	void setEpoch(); // reset to default date/time
 
-    /* TESTED */ int year() const;
-    /* TESTED */ byte month() const;
-    /* TESTED */ byte day() const;
-    /* TESTED */ byte hour() const;
-    /* TESTED */ byte minute() const;
-    /* TESTED */ byte second() const;
-    /* TESTED */ int millisecond() const;
+	/* TESTED */	int year() const;
+	/* TESTED */	byte month() const;
+	/* TESTED */	byte day() const;
+	/* TESTED */	byte hour() const;
+	/* TESTED */	byte minute() const;
+	/* TESTED */	byte second() const;
+	/* TESTED */	int millisecond() const;
 
-    /* TESTED */ static boolean isLeapYear(int year);
-    /* TESTED */ boolean isLeapYear() const;
-    /* TESTED */ static byte daysInMonth(byte month, int year);
-    /* TESTED */ byte daysInMonth() const;
+	/* TESTED */	static boolean isLeapYear(int year);
+	/* TESTED */	boolean isLeapYear() const;
+	/* TESTED */	static byte daysInMonth(byte month, int year);
+	/* TESTED */	byte daysInMonth() const;
 
-    /* TESTED */ void setStatus(DateTime::Status status, boolean state);
-    /* TESTED */ boolean getStatus(DateTime::Status status);
-    /* TESTED */ void setAdjustment(byte value);
-    /* TESTED */ byte getAdjustment() const;
+	/* TESTED */	void setStatus(DateTime::Status status, boolean state);
+	/* TESTED */	boolean getStatus(DateTime::Status status) const;
+	/* ASSUMED */	boolean isValid() const;
+	/* TESTED */	void setAdjustment(byte value);
+	/* TESTED */	byte getAdjustment() const;
 
 //    static long abs(long value);
-    /* TESTED */ static int daysInYear(int year);
-    /* TESTED */ int daysInYear() const;
-    /* TESTED */ DateTime& addOneDay();
-    /* TESTED */ DateTime& addOneMonth();
-    /* TESTED */ DateTime& addOneYear();
-    /* TESTED */ DateTime& subtractOneDay();
-    /* TESTED */ DateTime& subtractOneMonth();
-    /* TESTED */ DateTime& subtractOneYear();
-    /* TESTED */ static int monthCarryBorrow(int& month);
+	/* TESTED */	static int daysInYear(int year);
+	/* TESTED */	int daysInYear() const;
+	/* TESTED */	DateTime& addOneDay();
+	/* TESTED */	DateTime& addOneMonth();
+	/* TESTED */	DateTime& addOneYear();
+	/* TESTED */	DateTime& subtractOneDay();
+	/* TESTED */	DateTime& subtractOneMonth();
+	/* TESTED */	DateTime& subtractOneYear();
+	/* TESTED */	static int monthCarryBorrow(int& month);
 //    static int month(int month);
 
 //    static byte leapDaysInRange(DateTime alpha, DateTime omega); // assumes alpha <= omega
 //    static long nonLeapDaysInRange(DateTime alpha, DateTime omega);  // assumes alpha <= omega
-    static long daysInRange(DateTime alpha, DateTime omega);
+//	static long daysInRange(DateTime alpha, DateTime omega);
 
-    /* TESTED */ static void add(byte& attribute, long& interval, int limit);
-    /* ASSUMED */ DateTime& add(long interval, Period period);
+	/* TESTED */	static void add(byte& attribute, long& interval, int limit);
+	/* ASSUMED */	DateTime& add(long interval, Period period);
 #ifndef ARDUINO
-    /* TESTED */ static char* intToString(int value);
+	/* TESTED */	static char* intToString(int value);
 #endif
-    /* TESTED */ String& toString();
+	/* TESTED */	String& toString();
 
-    /* ASSUMED */ boolean isBefore(const DateTime &other) const;
-    /* ASSUMED */ boolean isEqualTo(const DateTime &other) const;
-    /* ASSUMED */ boolean operator == (const DateTime &other) const;
-    /* ASSUMED */ boolean operator != (const DateTime &other) const;
-    /* ASSUMED */ boolean operator <  (const DateTime &other) const;
-    /* ASSUMED */ boolean operator <= (const DateTime &other) const;
-    /* ASSUMED */ boolean operator >  (const DateTime &other) const;
-    /* ASSUMED */ boolean operator >= (const DateTime &other) const;
+	/* ASSUMED */	boolean isBefore(const DateTime &other) const;
+	/* ASSUMED */	boolean isEqualTo(const DateTime &other) const;
+	/* ASSUMED */	boolean operator == (const DateTime &other) const;
+	/* ASSUMED */	boolean operator != (const DateTime &other) const;
+	/* ASSUMED */	boolean operator <  (const DateTime &other) const;
+	/* ASSUMED */	boolean operator <= (const DateTime &other) const;
+	/* ASSUMED */	boolean operator >  (const DateTime &other) const;
+	/* ASSUMED */	boolean operator >= (const DateTime &other) const;
 
-  protected:
-    byte _year; // 0-255 represents 1900-2155
-    byte _month, _day, _hour, _minute, _second, _status;
-    int _millisecond;
-    String* _string;
+protected:
+	byte _year; // 0-255 represents 1900-2155
+	byte _month, _day, _hour, _minute, _second, _status;
+	int _millisecond;
+	String* _string;
 
-  private:
-    /* TESTED */ boolean isValid();
-    /* TESTED */ void overflowed();
+private:
+	/* TESTED */	boolean checkValid();
+	/* TESTED */	void overflowed();
 };
 
 #endif // DATETIME_H
