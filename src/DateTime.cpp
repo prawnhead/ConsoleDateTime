@@ -151,33 +151,17 @@ boolean DateTime::getStatus(DateTime::Status status)
     return (_status & status);
 }
 
-//void DateTime::setAdjustment(byte value)
-//{
-//    switch (value)
-//    {
-//    case 0:
-//        setStatus(AdjustedBit0, false);
-//        setStatus(AdjustedBit1, false);
-//        break;
-//    case 1:
-//        setStatus(AdjustedBit0, true);
-//        setStatus(AdjustedBit1, false);
-//        break;
-//    case 2:
-//        setStatus(AdjustedBit0, false);
-//        setStatus(AdjustedBit1, true);
-//        break;
-//    case 3:
-//        setStatus(AdjustedBit0, true);
-//        setStatus(AdjustedBit1, true);
-//        break;
-//    }
-//}
-//
-//byte DateTime::getAdjustment() const
-//{
-//    return _status & ADJUSTMENT_MASK;
-//}
+void DateTime::setAdjustment(byte value)
+{
+  if (value > ADJUSTMENT_MASK) return;
+  _status &= ~ADJUSTMENT_MASK;
+  _status |= value;
+}
+
+byte DateTime::getAdjustment() const
+{
+    return _status & ADJUSTMENT_MASK;
+}
 
 void DateTime::overflowed() {
   setEpoch();
@@ -235,7 +219,7 @@ int DateTime::daysInYear() const {
 //  if ()
 //}
 
-DateTime& DateTime::addOneDay() {
+DateTime& DateTime::addOneDay() { // TODO: Fold in with add()
   if (_day < daysInMonth()) _day++;
   else {
     _day = 1;
@@ -244,7 +228,7 @@ DateTime& DateTime::addOneDay() {
   return *this;
 }
 
-DateTime& DateTime::addOneMonth() {
+DateTime& DateTime::addOneMonth() { // TODO: Fold in with add()
   // Precondition: Must not be used on days after 28th of any month
   if (_month < MONTHS_PER_YEAR) _month++;
   else {
@@ -254,7 +238,7 @@ DateTime& DateTime::addOneMonth() {
   return *this;
 }
 
-DateTime& DateTime::addOneYear() {
+DateTime& DateTime::addOneYear() { // TODO: Fold in with add()
   // Precondition: Must not be used on days after 28th of any month
   if (year() < MAX_YEAR)
     _year++;
@@ -263,7 +247,7 @@ DateTime& DateTime::addOneYear() {
   return *this;
 }
 
-DateTime& DateTime::subtractOneDay() {
+DateTime& DateTime::subtractOneDay() { // TODO: Fold in with add()
   if (_day > 1) _day--;
   else {
     subtractOneMonth();
@@ -272,7 +256,7 @@ DateTime& DateTime::subtractOneDay() {
   return *this;
 }
 
-DateTime& DateTime::subtractOneMonth() {
+DateTime& DateTime::subtractOneMonth() { // TODO: Fold in with add()
   // Precondition: Must not be used on days after 28th of any month
   if (_month > 1) _month--;
   else {
@@ -282,7 +266,7 @@ DateTime& DateTime::subtractOneMonth() {
   return *this;
 }
 
-DateTime& DateTime::subtractOneYear() {
+DateTime& DateTime::subtractOneYear() { // TODO: Fold in with add()
   // Precondition: Must not be used on days after 28th of any month
   if (year() > MIN_YEAR)
     _year--;
@@ -478,7 +462,10 @@ DateTime& DateTime::add(long interval, Period period)
   }
 
   // Correct for different month lengths, if required.
-  if (_day > daysInMonth()) _day = daysInMonth();
+  if (_day > daysInMonth()) {
+    setAdjustment(_day - daysInMonth());
+    _day = daysInMonth();
+  }
 
   return *this;
 

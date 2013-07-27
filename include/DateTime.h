@@ -66,8 +66,8 @@ class DateTime
 
     /* TESTED */ void setStatus(DateTime::Status status, boolean state);
     /* TESTED */ boolean getStatus(DateTime::Status status);
-//    void setAdjustment(byte value);
-//    byte getAdjustment() const;
+    /* TESTED */ void setAdjustment(byte value);
+    /* TESTED */ byte getAdjustment() const;
 
 //    static long abs(long value);
     /* TESTED */ static int daysInYear(int year);

@@ -144,6 +144,14 @@ void testAddByte(byte value, long interval, int limit, byte expectedValue, long 
   }
 }
 
+void testGetAdjustment(DateTime value, byte expectedAdjustment) {
+  tests++;
+  if (value.getAdjustment() != expectedAdjustment) {
+    fails++;
+    printf("FAILURE of getAdjustment() for %s.\n\tExpected: %d.\n\t  Actual: %d\n", value.toString().c_str(), expectedAdjustment, value.getAdjustment());
+  }
+}
+
 int main()
 {
 
@@ -528,6 +536,7 @@ int main()
   testInvalidDateTime(DateTime(1900, 2, 29, 0, 0, 0, 0), false);
   testInvalidDateTime(DateTime(1901, 2, 29, 0, 0, 0, 0), false);
   testInvalidDateTime(DateTime(2100, 2, 29, 0, 0, 0, 0), false);
+// TESING add()
   // Test overflow invalidates DateTime objects, overflow by only 1ms in each case
   testInvalidDateTime(DateTime(2155, 1, 1, 0, 0, 0, 0).add(1, DateTime::Year), true);
   testInvalidDateTime(DateTime(2155, 12, 1, 0, 0, 0, 0).add(1, DateTime::Month), true);
@@ -633,6 +642,15 @@ int main()
   // subtractOneYear()
   testDateTime(DateTime(1901, 1, 1, 0, 0, 0, 0).subtractOneYear(), DateTime(1900, 1, 1, 0, 0, 0, 0), "subtractOneYear()");
   testInvalidDateTime(DateTime(1900, 12, 31, 0, 0, 0, 0).subtractOneYear(), true);
+
+// TESTING setAdjustment() & getAdjustment()
+  testGetAdjustment(DateTime(1900, 1, 1, 0, 0, 0, 0), 0);                           // 1900-01-01
+  testGetAdjustment(DateTime(1900, 3, 31, 0, 0, 0, 0).add(1, DateTime::Month), 1);  // 1900-04-30
+  testGetAdjustment(DateTime(1904, 1, 31, 0, 0, 0, 0).add(1, DateTime::Month), 2);  // 1904-02-29
+  testGetAdjustment(DateTime(1900, 1, 31, 0, 0, 0, 0).add(1, DateTime::Month), 3);  // 1900-02-28
+  testGetAdjustment(DateTime(2096, 2, 29, 0, 0, 0, 0).add(4, DateTime::Year), 1);   // 2100-02-28
+  testGetAdjustment(DateTime(1900, 1, 1, 0, 0, 0, 0).add(255, DateTime::Year), 0);   // 2100-02-28
+  testGetAdjustment(DateTime(2155, 1, 1, 0, 0, 0, 0).add(-255, DateTime::Year), 0);   // 2100-02-28
 
   // Test daysInRange()
 //  DateTime alpha = DateTime(2001, 01, 01, 0, 0, 0, 0);
