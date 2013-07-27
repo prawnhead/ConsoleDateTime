@@ -576,6 +576,52 @@ int main() {
 	testDateTime(DateTime(1922, 2, 25, 6, 57, 58, 462).add(-1, DateTime::Day), DateTime(1922, 2, 24, 6, 57, 58, 462), "Decrement days");
 	testDateTime(DateTime(2071, 10, 9, 5, 4, 37, 247).add(-1, DateTime::Month), DateTime(2071, 9, 9, 5, 4, 37, 247), "Decrement months");
 	testDateTime(DateTime(2100, 8, 9, 16, 48, 24, 386).add(-1, DateTime::Year), DateTime(2099, 8, 9, 16, 48, 24, 386), "Decrement years");
+	// +10 individual periods
+	testDateTime(DateTime(1932, 10, 23, 12, 25, 15, 576).add(10, DateTime::Millisecond), DateTime(1932, 10, 23, 12, 25, 15, 586), "+10 milliseconds");
+	testDateTime(DateTime(2038, 11, 4, 4, 36, 6, 902).add(10, DateTime::Second), DateTime(2038, 11, 4, 4, 36, 16, 902), "+10 seconds");
+	testDateTime(DateTime(1935, 9, 30, 7, 58, 34, 860).add(10, DateTime::Minute), DateTime(1935, 9, 30, 8, 8, 34, 860), "+10 minutes");
+	testDateTime(DateTime(2130, 6, 12, 8, 35, 55, 527).add(10, DateTime::Hour), DateTime(2130, 6, 12, 18, 35, 55, 527), "+10 hours");
+	testDateTime(DateTime(1917, 7, 29, 2, 19, 0, 196).add(10, DateTime::Day), DateTime(1917, 8, 8, 2, 19, 0, 196), "+10 days");
+	testDateTime(DateTime(1949, 11, 8, 9, 16, 4, 973).add(10, DateTime::Month), DateTime(1950, 9, 8, 9, 16, 4, 973), "+10 months");
+	testDateTime(DateTime(2137, 10, 8, 6, 27, 16, 769).add(10, DateTime::Year), DateTime(2147, 10, 8, 6, 27, 16, 769), "+10 years");
+	// -10 individual periods
+	testDateTime(DateTime(2122, 2, 6, 7, 9, 3, 911).add(-10, DateTime::Millisecond), DateTime(2122, 2, 6, 7, 9, 3, 901), "-10 milliseconds");
+	testDateTime(DateTime(2028, 2, 8, 13, 54, 46, 890).add(-10, DateTime::Second), DateTime(2028, 2, 8, 13, 54, 36, 890), "-10 seconds");
+	testDateTime(DateTime(1977, 12, 10, 10, 48, 46, 33).add(-10, DateTime::Minute), DateTime(1977, 12, 10, 10, 38, 46, 33), "-10 minutes");
+	testDateTime(DateTime(1930, 1, 31, 7, 36, 59, 134).add(-10, DateTime::Hour), DateTime(1930, 1, 30, 21, 36, 59, 134), "-10 hours");
+	testDateTime(DateTime(2046, 2, 3, 22, 21, 21, 230).add(-10, DateTime::Day), DateTime(2046, 1, 24, 22, 21, 21, 230), "-10 days");
+	testDateTime(DateTime(1925, 7, 4, 3, 34, 53, 720).add(-10, DateTime::Month), DateTime(1924, 9, 4, 3, 34, 53, 720), "-10 months");
+	testDateTime(DateTime(1995, 6, 21, 16, 39, 33, 555).add(-10, DateTime::Year), DateTime(2069, 2, 10, 0, 37, 50, 863), "-10 years");
+	// +100 individual periods
+	testDateTime(DateTime(1979, 2, 9, 21, 26, 31, 147).add(100, DateTime::Millisecond), DateTime(1979, 2, 9, 21, 26, 31, 247), "+100 milliseconds");
+	testDateTime(DateTime(1977, 6, 21, 18, 32, 25, 112).add(100, DateTime::Second), DateTime(1977, 6, 21, 18, 34, 5, 112), "+100 seconds");
+	testDateTime(DateTime(1914, 5, 29, 7, 58, 46, 476).add(100, DateTime::Minute), DateTime(1914, 5, 29, 9, 38, 46, 476), "+100 minutes");
+	testDateTime(DateTime(1901, 6, 24, 3, 42, 48, 667).add(100, DateTime::Hour), DateTime(1901, 6, 28, 7, 42, 48, 667), "+100 hours");
+	testDateTime(DateTime(1905, 9, 17, 15, 3, 24, 159).add(100, DateTime::Day), DateTime(1905, 12, 26, 15, 3, 24, 159), "+100 days");
+	testDateTime(DateTime(2110, 12, 19, 16, 7, 6, 468).add(100, DateTime::Month), DateTime(2119, 4, 19, 16, 7, 6, 468), "+100 months");
+	testDateTime(DateTime(1974, 5, 15, 10, 33, 9, 134).add(100, DateTime::Year), DateTime(2074, 5, 15, 10, 33, 9, 134), "+100 years");
+	// -100 individual periods
+	testDateTime(DateTime(2148, 9, 14, 10, 52, 19, 104).add(-100, DateTime::Millisecond), DateTime(2148, 9, 14, 10, 52, 19, 4), "-100 milliseconds");
+	testDateTime(DateTime(2103, 8, 12, 6, 52, 1, 699).add(-100, DateTime::Second), DateTime(2103, 8, 12, 6, 50, 21, 699), "-100 seconds");
+	testDateTime(DateTime(2013, 3, 22, 14, 53, 55, 225).add(-100, DateTime::Minute), DateTime(2013, 3, 22, 14, 52, 15, 225), "-100 minutes");
+	testDateTime(DateTime(2029, 7, 12, 11, 31, 54, 816).add(-100, DateTime::Hour), DateTime(2029, 7, 4, 7, 31, 54, 816), "-100 hours");
+	testDateTime(DateTime(2034, 8, 20, 21, 58, 8, 597).add(-100, DateTime::Day), DateTime(2034, 5, 12, 21, 58, 8, 597), "-100 days");
+	testDateTime(DateTime(2031, 5, 10, 2, 54, 24, 225).add(-100, DateTime::Month), DateTime(2023, 1, 10, 2, 54, 24, 225), "-100 months");
+	testDateTime(DateTime(2050, 4, 1, 15, 12, 0, 441).add(-100, DateTime::Year), DateTime(1950, 4, 1, 15, 12, 0, 441), "-100 years");
+	// +1000 individual periods
+	testDateTime(DateTime(2005, 10, 28, 4, 35, 48, 509).add(1000, DateTime::Millisecond), DateTime(2005, 10, 28, 4, 35, 49, 509), "+1000 milliseconds");
+	testDateTime(DateTime(1997, 3, 29, 14, 43, 25, 105).add(1000, DateTime::Second), DateTime(1997, 3, 29, 15, 24, 5, 105), "+1000 seconds");
+	testDateTime(DateTime(2009, 3, 11, 21, 36, 8, 46).add(1000, DateTime::Minute), DateTime(2009, 3, 12, 14, 16, 8, 46), "+1000 minutes");
+	testDateTime(DateTime(1992, 5, 29, 9, 46, 42, 371).add(1000, DateTime::Hour), DateTime(1992, 7, 10, 1, 46, 42, 371), "+1000 hours");
+	testDateTime(DateTime(1965, 6, 5, 19, 14, 39, 545).add(1000, DateTime::Day), DateTime(1968, 3, 1, 19, 14, 39, 545), "+1000 days");
+	testDateTime(DateTime(1932, 7, 10, 10, 10, 53, 775).add(1000, DateTime::Month), DateTime(2015, 11, 10, 10, 10, 53, 775), "+1000 months");
+	// -1000 individual periods
+	testDateTime(DateTime(2151, 4, 14, 6, 53, 2, 450).add(-1000, DateTime::Millisecond), DateTime(2151, 4, 14, 6, 53, 1, 450), "-1000 milliseconds");
+	testDateTime(DateTime(1972, 4, 15, 16, 22, 43, 238).add(-1000, DateTime::Second), DateTime(1972, 4, 15, 16, 6, 3, 238), "-1000 seconds");
+	testDateTime(DateTime(1946, 7, 17, 17, 36, 54, 566).add(-1000, DateTime::Minute), DateTime(1946, 7, 17, 0, 56, 54, 566), "-1000 minutes");
+	testDateTime(DateTime(2112, 12, 16, 16, 33, 51, 967).add(-1000, DateTime::Hour), DateTime(2112, 11, 5, 0, 33, 51, 967), "-1000 hours");
+	testDateTime(DateTime(2055, 6, 24, 6, 29, 6, 412).add(-1000, DateTime::Day), DateTime(2053, 9, 28, 6, 29, 6, 412), "-1000 days");
+	testDateTime(DateTime(2123, 9, 15, 8, 48, 14, 81).add(-1000, DateTime::Month), DateTime(2040, 5, 15, 8, 48, 14, 81), "-1000 months");
 	// Rollover all periods
 	testDateTime(DateTime(1934, 12, 31, 23, 59, 59, 999).add(1, DateTime::Millisecond), DateTime(1935, 1, 1, 0, 0, 0, 0), "Add forward 1 milliseconds");
 	testDateTime(DateTime(2076, 1, 1, 0, 0, 0, 0).add(-1, DateTime::Millisecond), DateTime(2075, 12, 31, 23, 59, 59, 999), "Roll back 1 milliseconds");

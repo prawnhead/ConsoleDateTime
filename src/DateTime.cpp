@@ -310,7 +310,7 @@ void DateTime::add(byte& attribute, long& interval, int limit) {
 DateTime& DateTime::add(long interval, Period period) {
 	if (!interval) return *this;
 	if (period == Millisecond) {
-		long magnitude = _millisecond + interval;  // TODO: Doesn't handle magnitude going -ve.
+		long magnitude = _millisecond + interval;
 		interval = magnitude / MILLISECONDS_PER_SECOND;
 		int newValue = magnitude % MILLISECONDS_PER_SECOND;
 		if (newValue < 0) {
@@ -348,10 +348,9 @@ DateTime& DateTime::add(long interval, Period period) {
 			while (interval && _month > 1) {
 				int priorMonth = _month - 1;
 				int priorYear = year() + monthCarryBorrow(priorMonth);
-				int daysPriorMonth = daysInMonth(priorMonth, priorYear);
-				if (daysPriorMonth <= -interval) {
+				if (daysInMonth(priorMonth, priorYear) <= -interval) {
 					subtractOneMonth();
-					interval += daysPriorMonth;
+					interval += daysInMonth();
 					if (!isValid()) interval = 0; // Underflow.
 				} else break;
 //          _day += interval;
@@ -364,15 +363,12 @@ DateTime& DateTime::add(long interval, Period period) {
 				interval += daysPriorYear;
 				subtractOneYear();
 				if (!isValid()) interval = 0; // blew it. Overflowed.
-				daysPriorYear = daysInYear(year() - 1); // TODO: HERE!
+				daysPriorYear = daysInYear(year() - 1);
 			}
 			// 4. Jump by months if you can
 			while (-interval >= daysInMonth()) {
-				int priorMonth = _month - 1;
-				int priorYear = year() + monthCarryBorrow(priorMonth);
-				int daysPriorMonth = daysInMonth(priorMonth, priorYear);
-				interval += daysInMonth();
 				subtractOneMonth();
+				interval += daysInMonth();
 				if (!isValid()) interval = 0; // blew it. Overflowed.
 			}
 			// 5. Jump by days to finish off

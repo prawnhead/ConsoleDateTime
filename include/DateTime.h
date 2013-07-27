@@ -84,6 +84,7 @@ public:
 //    static byte leapDaysInRange(DateTime alpha, DateTime omega); // assumes alpha <= omega
 //    static long nonLeapDaysInRange(DateTime alpha, DateTime omega);  // assumes alpha <= omega
 //	static long daysInRange(DateTime alpha, DateTime omega);
+	long intervalTo(DateTime other, DateTime::Period period);
 
 	/* TESTED */	static void add(byte& attribute, long& interval, int limit);
 	/* ASSUMED */	DateTime& add(long interval, Period period);
