@@ -69,7 +69,6 @@ public:
 	/* TESTED */	void setAdjustment(byte value);
 	/* TESTED */	byte getAdjustment() const;
 
-//    static long abs(long value);
 	/* TESTED */	static int daysInYear(int year);
 	/* TESTED */	int daysInYear() const;
 	/* TESTED */	DateTime& addOneDay();
@@ -79,11 +78,6 @@ public:
 	/* TESTED */	DateTime& subtractOneMonth();
 	/* TESTED */	DateTime& subtractOneYear();
 	/* TESTED */	static int monthCarryBorrow(int& month);
-//    static int month(int month);
-
-//    static byte leapDaysInRange(DateTime alpha, DateTime omega); // assumes alpha <= omega
-//    static long nonLeapDaysInRange(DateTime alpha, DateTime omega);  // assumes alpha <= omega
-//	static long daysInRange(DateTime alpha, DateTime omega);
 	long intervalTo(DateTime other, DateTime::Period period);
 
 	/* TESTED */	static void add(byte& attribute, long& interval, int limit);

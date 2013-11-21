@@ -591,7 +591,7 @@ int main() {
 	testDateTime(DateTime(1930, 1, 31, 7, 36, 59, 134).add(-10, DateTime::Hour), DateTime(1930, 1, 30, 21, 36, 59, 134), "-10 hours");
 	testDateTime(DateTime(2046, 2, 3, 22, 21, 21, 230).add(-10, DateTime::Day), DateTime(2046, 1, 24, 22, 21, 21, 230), "-10 days");
 	testDateTime(DateTime(1925, 7, 4, 3, 34, 53, 720).add(-10, DateTime::Month), DateTime(1924, 9, 4, 3, 34, 53, 720), "-10 months");
-	testDateTime(DateTime(1995, 6, 21, 16, 39, 33, 555).add(-10, DateTime::Year), DateTime(2069, 2, 10, 0, 37, 50, 863), "-10 years");
+	testDateTime(DateTime(1995, 6, 21, 16, 39, 33, 555).add(-10, DateTime::Year), DateTime(1985, 6, 21, 16, 39, 33, 555), "-10 years");
 	// +100 individual periods
 	testDateTime(DateTime(1979, 2, 9, 21, 26, 31, 147).add(100, DateTime::Millisecond), DateTime(1979, 2, 9, 21, 26, 31, 247), "+100 milliseconds");
 	testDateTime(DateTime(1977, 6, 21, 18, 32, 25, 112).add(100, DateTime::Second), DateTime(1977, 6, 21, 18, 34, 5, 112), "+100 seconds");
@@ -603,14 +603,14 @@ int main() {
 	// -100 individual periods
 	testDateTime(DateTime(2148, 9, 14, 10, 52, 19, 104).add(-100, DateTime::Millisecond), DateTime(2148, 9, 14, 10, 52, 19, 4), "-100 milliseconds");
 	testDateTime(DateTime(2103, 8, 12, 6, 52, 1, 699).add(-100, DateTime::Second), DateTime(2103, 8, 12, 6, 50, 21, 699), "-100 seconds");
-	testDateTime(DateTime(2013, 3, 22, 14, 53, 55, 225).add(-100, DateTime::Minute), DateTime(2013, 3, 22, 14, 52, 15, 225), "-100 minutes");
-	testDateTime(DateTime(2029, 7, 12, 11, 31, 54, 816).add(-100, DateTime::Hour), DateTime(2029, 7, 4, 7, 31, 54, 816), "-100 hours");
+	testDateTime(DateTime(2013, 3, 22, 14, 53, 55, 225).add(-100, DateTime::Minute), DateTime(2013, 3, 22, 13, 13, 55, 225), "-100 minutes");
+	testDateTime(DateTime(2029, 7, 12, 11, 31, 54, 816).add(-100, DateTime::Hour), DateTime(2029, 7, 8, 7, 31, 54, 816), "-100 hours");
 	testDateTime(DateTime(2034, 8, 20, 21, 58, 8, 597).add(-100, DateTime::Day), DateTime(2034, 5, 12, 21, 58, 8, 597), "-100 days");
 	testDateTime(DateTime(2031, 5, 10, 2, 54, 24, 225).add(-100, DateTime::Month), DateTime(2023, 1, 10, 2, 54, 24, 225), "-100 months");
 	testDateTime(DateTime(2050, 4, 1, 15, 12, 0, 441).add(-100, DateTime::Year), DateTime(1950, 4, 1, 15, 12, 0, 441), "-100 years");
 	// +1000 individual periods
 	testDateTime(DateTime(2005, 10, 28, 4, 35, 48, 509).add(1000, DateTime::Millisecond), DateTime(2005, 10, 28, 4, 35, 49, 509), "+1000 milliseconds");
-	testDateTime(DateTime(1997, 3, 29, 14, 43, 25, 105).add(1000, DateTime::Second), DateTime(1997, 3, 29, 15, 24, 5, 105), "+1000 seconds");
+	testDateTime(DateTime(1997, 3, 29, 14, 43, 25, 105).add(1000, DateTime::Second), DateTime(1997, 3, 29, 15, 0, 5, 105), "+1000 seconds");
 	testDateTime(DateTime(2009, 3, 11, 21, 36, 8, 46).add(1000, DateTime::Minute), DateTime(2009, 3, 12, 14, 16, 8, 46), "+1000 minutes");
 	testDateTime(DateTime(1992, 5, 29, 9, 46, 42, 371).add(1000, DateTime::Hour), DateTime(1992, 7, 10, 1, 46, 42, 371), "+1000 hours");
 	testDateTime(DateTime(1965, 6, 5, 19, 14, 39, 545).add(1000, DateTime::Day), DateTime(1968, 3, 1, 19, 14, 39, 545), "+1000 days");
