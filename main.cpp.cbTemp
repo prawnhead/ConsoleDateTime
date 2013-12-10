@@ -33,7 +33,7 @@ int fails = 0;
 
 int main() {
 
-	//texcelestModAddSubLarge(900, 50000, 1000, 0, 900, 50);
+	//testModAddSubLarge(900, 50000, 1000, 0, 900, 50);
 
 	if (fails == 0)
 		printf("%d tests passed.", tests);

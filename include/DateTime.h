@@ -1,21 +1,24 @@
 #ifndef DATETIME_H
 #define DATETIME_H
 
-//#ifndef ARDUINO
+// http://www.nongnu.org/avr-libc/user-manual/group__avr__stduint16_t.html
+
+
+#ifndef ARDUINO
 	#include <iostream>
 //	#include <string>
 	#include <cstdio>
 //	#define F(X) X
 //	#define PROGMEM
-//	#define int int16_t
-//	using namespace std;
-	typedef uint8_t byte;
 //	typedef string String;
 //	typedef bool boolean;
-//#else
-//	#include <Arduino.h>
-//	#define intToString(X) X
-//#endif
+#else
+	#include <Arduino.h>
+	#define int8_t_max 127
+	#define uint8_t_max 255
+	#define INT16_MAX 32767
+	#define UINT16_MAX 65535
+#endif
 //
 #define MIN_YEAR 1900
 
@@ -23,29 +26,48 @@
 
 class DateTime {
 
-
-	protected:
-		byte _year; // 0-255 represents 1900-2155
-		byte _month, _day, _hour, _minute, _second, _status;
-		int _millisecond;
-
-	public:
-		DateTime();
-		int year() const;
-//		byte month() const;
-//		byte day() const;
-//		byte hour() const;
-//		byte minute() const;
-//		byte second() const;
-//		int millisecond() const;
-//
-		char* toString();
-////		String& getString();
-//		char* getLine();
 	private:
 		// All instances of this class will share a single character
 		// array for storage of string representations. This will
 		static char _line[24];
+
+		static const uint8_t uint8_t_max = 255;
+		static const uint16_t uint16_t_max = 32767;
+
+		static const uint8_t mod_year = 255;
+		static const uint8_t floor_year = 0;
+		static const uint8_t mod_month = 12;
+		static const uint8_t floor_month = 1;
+		// day by function
+		static const uint8_t mod_hour = 24;
+		static const uint8_t floor_hour = 0;
+		static const uint8_t mod_minute = 60;
+		static const uint8_t floor_minute = 0;
+		static const uint8_t mod_second = 60;
+		static const uint8_t floor_second = 0;
+		static const uint16_t mod_millisecond = 1000;
+		static const uint16_t floor_millisecond = 0;
+
+	protected:
+		uint8_t _year; // 0-255 represents 1900-2155
+		uint8_t _month, _day, _hour, _minute, _second;
+		uint16_t _millisecond;
+
+	public:
+		DateTime();
+		uint16_t year() const;
+		static uint16_t modAddSub(uint8_t& addendMinuend, uint16_t addendSubtrahend, uint8_t rangeModulo, uint8_t rangeStart);
+		static uint16_t modAddSub(uint16_t& addendMinuend, uint16_t addendSubtrahend, uint16_t rangeModulo, uint16_t rangeStart);
+//		uint8_t month() const;
+//		uint8_t day() const;
+//		uint8_t hour() const;
+//		uint8_t minute() const;
+//		uint8_t second() const;
+//		uint16_t millisecond() const;
+//
+		char* toString();
+////		String& getString();
+//		char* getLine();
 };
 
 #endif // DATETIME_H
@@ -79,44 +101,44 @@ class DateTime {
 //	//enum TimeSource { Compiler, NMEA };
 //
 //	/* TESTED */	DateTime();
-//	/* TESTED */	DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond);
+//	/* TESTED */	DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
 //
 //	/* TESTED */	void setEpoch(); // reset to default date/time
 //
-//	/* TESTED */	int year() const;
-//	/* TESTED */	byte month() const;
-//	/* TESTED */	byte day() const;
-//	/* TESTED */	byte hour() const;
-//	/* TESTED */	byte minute() const;
-//	/* TESTED */	byte second() const;
-//	/* TESTED */	int millisecond() const;
+//	/* TESTED */	uint16_t year() const;
+//	/* TESTED */	uint8_t month() const;
+//	/* TESTED */	uint8_t day() const;
+//	/* TESTED */	uint8_t hour() const;
+//	/* TESTED */	uint8_t minute() const;
+//	/* TESTED */	uint8_t second() const;
+//	/* TESTED */	uint16_t millisecond() const;
 //
-//	/* TESTED */	static boolean isLeapYear(int year);
+//	/* TESTED */	static boolean isLeapYear(uint16_t year);
 //	/* TESTED */	boolean isLeapYear() const;
-//	/* TESTED */	static byte daysInMonth(byte month, int year);
-//	/* TESTED */	byte daysInMonth() const;
+//	/* TESTED */	static uint8_t daysInMonth(uint8_t month, uint16_t year);
+//	/* TESTED */	uint8_t daysInMonth() const;
 //
 //	/* TESTED */	void setStatus(DateTime::Status status, boolean state);
 //	/* TESTED */	boolean getStatus(DateTime::Status status) const;
 //	/* ASSUMED */	boolean isValid() const;
-//	/* TESTED */	void setAdjustment(byte value);
-//	/* TESTED */	byte getAdjustment() const;
+//	/* TESTED */	void setAdjustment(uint8_t value);
+//	/* TESTED */	uint8_t getAdjustment() const;
 //
-//	/* TESTED */	static int daysInYear(int year);
-//	/* TESTED */	int daysInYear() const;
+//	/* TESTED */	static uint16_t daysInYear(uint16_t year);
+//	/* TESTED */	uint16_t daysInYear() const;
 //	/* TESTED */	DateTime& addOneDay();
 //	/* TESTED */	DateTime& addOneMonth();
 //	/* TESTED */	DateTime& addOneYear();
 //	/* TESTED */	DateTime& subtractOneDay();
 //	/* TESTED */	DateTime& subtractOneMonth();
 //	/* TESTED */	DateTime& subtractOneYear();
-//	/* TESTED */	static int monthCarryBorrow(int& month);
-//	long intervalTo(DateTime other, DateTime::Period period);
+//	/* TESTED */	static uint16_t monthCarryBorrow(uint16_t& month);
+//	long uint16_tervalTo(DateTime other, DateTime::Period period);
 //
-//	/* TESTED */	static void add(byte& attribute, long& interval, int limit);
-//	/* ASSUMED */	DateTime& add(long interval, Period period);
+//	/* TESTED */	static void add(uint8_t& attribute, long& uint16_terval, uint16_t limit);
+//	/* ASSUMED */	DateTime& add(long uint16_terval, Period period);
 //#ifndef ARDUINO
-//	/* TESTED */	static char* intToString(int value);
+//	/* TESTED */	static char* uint16_tToString(uint16_t value);
 //#endif
 //	/* TESTED */	String& toString();
 //
@@ -130,9 +152,9 @@ class DateTime {
 //	/* ASSUMED */	boolean operator >= (const DateTime &other) const;
 //
 //protected:
-//	byte _year; // 0-255 represents 1900-2155
-//	byte _month, _day, _hour, _minute, _second, _status;
-//	int _millisecond;
+//	uint8_t _year; // 0-255 represents 1900-2155
+//	uint8_t _month, _day, _hour, _minute, _second, _status;
+//	uint16_t _millisecond;
 //	String* _string;
 //
 //private:

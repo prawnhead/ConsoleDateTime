@@ -21,6 +21,88 @@ char* DateTime::toString() {
 	return DateTime::_line;
 }
 
+int8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t modulo) {
+	// Range(addendMinuend)		0 to 255
+	// Range(addendSubtrahend)	-128 to 127
+	// Range(modulo)			0 to 255
+
+	// Range(sum): -128 to 382 (doesn't fit int8_t or uint8_t and is signed)
+	int16_t sum = addendMinuend + addendSubtrahend;
+
+	// Range(intermediate): -128 (sum <= -modulo) to 254 (modulo = 255)
+	int16_t intermediate = sum % modulo;
+
+	if (intermediate < 0) {	// if -addendSubtrahend > addendMinuend
+		// Range(addendMinuend): 1 to (modulo - 1) can be case to uint8_t
+		addendMinuend = (uint8_t)(intermediate + modulo);
+		// Range(return): if sum = 382, modulo = 2, then return = 191. Requires int16_t.
+		// Range(return): if sum = 382, modulo = 3, then return = 127. Requires int8_t.
+		return sum / modulo - 1;
+	//} else if (intermediate > uint8_t_max) {	// Can't happen
+	//	// Range(return): if sum 382, modulo >
+	//	addendMinuend = (uint8_t)(intermediate - modulo);
+	//	return sum / modulo + 1;
+	} else {
+		addendMinuend = (uint8_t)intermediate;
+		return sum / modulo;
+	}
+}
+
+uint8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t rangeModulo, uint8_t rangeStart) {
+
+	// Data ranges:
+	// addendMinuend	0 to 255
+	// addendSubtrahend -128 to 127
+	// rangeModulo		0 to 255
+	// rangeStart		0 to 255
+
+	// Range of allowable addendMinuend values is:
+	// rangeStart ... rangeStart + rangeModulo - 1
+
+	// Range: zeroOffsetSum -383 (0 - 128 - 255) to 382 (255 + 127 - 0)
+	uint16_t zeroOffsetSum = addendMinuend + addendSubtrahend - rangeStart;
+
+	uint16_t intermediate = zeroOffsetSum % rangeModulo + rangeStart;
+
+	if (intermediate < rangeStart) {	// Fix underflow of uint8_t data type
+		addendMinuend = (uint8_t)(intermediate + rangeModulo);
+		return zeroOffsetSum / rangeModulo - 1;
+	} else if (intermediate > uint8_t_max) {
+		addendMinuend = (uint8_t)(intermediate - rangeModulo);
+		return zeroOffsetSum / rangeModulo + 1;
+	} else {
+		addendMinuend = (uint8_t)intermediate;
+		return zeroOffsetSum / rangeModulo;
+	}
+
+}
+
+uint16_t DateTime::modAddSub(uint16_t& addendMinuend, uint16_t addendSubtrahend, uint16_t rangeModulo, uint16_t rangeStart) {
+
+	// Range of allowable addendMinuend values is:
+	// rangeStart ... rangeStart + rangeModulo - 1
+
+	uint16_t zeroOffsetSum = addendMinuend + addendSubtrahend - rangeStart;
+	uint16_t intermediate = zeroOffsetSum % rangeModulo + rangeStart;
+
+	if (intermediate < rangeStart) {	// Fix underflow of uint8_t data type
+		addendMinuend = (uint8_t)(intermediate + rangeModulo);
+		return zeroOffsetSum / rangeModulo - 1;
+	} else if (intermediate > uint16_t_max) {
+		addendMinuend = (uint8_t)(intermediate - rangeModulo);
+		return zeroOffsetSum / rangeModulo + 1;
+	} else {
+		addendMinuend = (uint8_t)intermediate;
+		return zeroOffsetSum / rangeModulo;
+	}
+
+}
+
+//uint8_t DateTime::subtract(uint8_t &minuendDifference, uint8_t subtrahend, uint8_t modulo, uint8_t floor) {
+//
+//	uint8_t zeroOffsetSum =
+//}
+
 //DateTime::DateTime() {
 //DateTime::DateTime() {
 //	_year = 0;
@@ -32,31 +114,31 @@ char* DateTime::toString() {
 //	//_line = "Six";
 //}
 //
-int DateTime::year() const {
+uint16_t DateTime::year() const {
 	return MIN_YEAR + _year;
 }
 
-//byte DateTime::month() const {
+//uint8_t DateTime::month() const {
 //	return _month;
 //}
 //
-//byte DateTime::day() const {
+//uint8_t DateTime::day() const {
 //	return _day;
 //}
 //
-//byte DateTime::hour() const {
+//uint8_t DateTime::hour() const {
 //	return _hour;
 //}
 //
-//byte DateTime::minute() const {
+//uint8_t DateTime::minute() const {
 //	return _minute;
 //}
 //
-//byte DateTime::second() const {
+//uint8_t DateTime::second() const {
 //	return _second;
 //}
 //
-//int DateTime::millisecond() const {
+//uint16_t DateTime::millisecond() const {
 //	return _millisecond;
 //}
 //
@@ -66,9 +148,9 @@ int DateTime::year() const {
 //	char* line;
 //	//char* two;
 ////	output = new String();
-//	//sprintf(line, "%d", _year);	// WORKS
+//	//spruint16_tf(line, "%d", _year);	// WORKS
 //	//_line = "Hello";
-//	sprintf(line, "%d", _year);	// No WORKS
+//	spruint16_tf(line, "%d", _year);	// No WORKS
 //	//cout << "Line: " << line << endl;
 //	_line = line;
 //	//delete(_string);
@@ -90,7 +172,7 @@ int DateTime::year() const {
 //	setEpoch();
 //}
 //
-//DateTime::DateTime(int year, byte month, byte day, byte hour, byte minute, byte second, int millisecond) {
+//DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond) {
 //	if (year < MIN_YEAR || year > MAX_YEAR) {
 //		setEpoch();
 //		setStatus(Valid, false);
@@ -121,35 +203,35 @@ int DateTime::year() const {
 //	_status = Valid;
 //}
 //
-//int DateTime::year() const {
+//uint16_t DateTime::year() const {
 //	return MIN_YEAR + _year;
 //}
 //
-//byte DateTime::month() const {
+//uint8_t DateTime::month() const {
 //	return _month;
 //}
 //
-//byte DateTime::day() const {
+//uint8_t DateTime::day() const {
 //	return _day;
 //}
 //
-//byte DateTime::hour() const {
+//uint8_t DateTime::hour() const {
 //	return _hour;
 //}
 //
-//byte DateTime::minute() const {
+//uint8_t DateTime::minute() const {
 //	return _minute;
 //}
 //
-//byte DateTime::second() const {
+//uint8_t DateTime::second() const {
 //	return _second;
 //}
 //
-//int DateTime::millisecond() const {
+//uint16_t DateTime::millisecond() const {
 //	return _millisecond;
 //}
 //
-//boolean DateTime::isLeapYear(int year) {
+//boolean DateTime::isLeapYear(uint16_t year) {
 //	//http://en.wikipedia.org/wiki/Leap_year
 //	return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
 //}
@@ -158,11 +240,11 @@ int DateTime::year() const {
 //	return isLeapYear(year());
 //}
 //
-//byte DateTime::daysInMonth() const {
+//uint8_t DateTime::daysInMonth() const {
 //	return daysInMonth(_month, year());
 //}
 //
-//byte DateTime::daysInMonth(byte month, int year) {
+//uint8_t DateTime::daysInMonth(uint8_t month, uint16_t year) {
 //// http://en.wikipedia.org/wiki/Month
 //	switch (month) {
 //	case 1:
@@ -218,13 +300,13 @@ int DateTime::year() const {
 //	return (_status & Valid);
 //}
 //
-//void DateTime::setAdjustment(byte value) {
+//void DateTime::setAdjustment(uint8_t value) {
 //	if (value > ADJUSTMENT_MASK) return;
 //	_status &= ~ADJUSTMENT_MASK;
 //	_status |= value;
 //}
 //
-//byte DateTime::getAdjustment() const {
+//uint8_t DateTime::getAdjustment() const {
 //	return _status & ADJUSTMENT_MASK;
 //}
 //
@@ -234,16 +316,16 @@ int DateTime::year() const {
 //	setStatus(Overflow, true);
 //}
 //
-//int DateTime::daysInYear(int year) {
+//uint16_t DateTime::daysInYear(uint16_t year) {
 //	if (isLeapYear(year)) return 366;
 //	return 365;
 //}
 //
-//int DateTime::daysInYear() const {
+//uint16_t DateTime::daysInYear() const {
 //	return daysInYear(year());
 //}
 //
-//DateTime& DateTime::addOneDay() { // TODO: Fold in with add()
+//DateTime& DateTime::addOneDay() {
 //	if (_day < daysInMonth()) _day++;
 //	else {
 //		_day = 1;
@@ -252,7 +334,7 @@ int DateTime::year() const {
 //	return *this;
 //}
 //
-//DateTime& DateTime::addOneMonth() { // TODO: Fold in with add()
+//DateTime& DateTime::addOneMonth() {
 //	// Precondition: Must not be used on days after 28th of any month
 //	if (_month < MONTHS_PER_YEAR) _month++;
 //	else {
@@ -262,7 +344,7 @@ int DateTime::year() const {
 //	return *this;
 //}
 //
-//DateTime& DateTime::addOneYear() { // TODO: Fold in with add()
+//DateTime& DateTime::addOneYear() {
 //	// Precondition: Must not be used on days after 28th of any month
 //	if (year() < MAX_YEAR)
 //		_year++;
@@ -271,7 +353,7 @@ int DateTime::year() const {
 //	return *this;
 //}
 //
-//DateTime& DateTime::subtractOneDay() { // TODO: Fold in with add()
+//DateTime& DateTime::subtractOneDay() {
 //	if (_day > 1) _day--;
 //	else {
 //		subtractOneMonth();
@@ -280,7 +362,7 @@ int DateTime::year() const {
 //	return *this;
 //}
 //
-//DateTime& DateTime::subtractOneMonth() { // TODO: Fold in with add()
+//DateTime& DateTime::subtractOneMonth() {
 //	// Precondition: Must not be used on days after 28th of any month
 //	if (_month > 1) _month--;
 //	else {
@@ -290,7 +372,7 @@ int DateTime::year() const {
 //	return *this;
 //}
 //
-//DateTime& DateTime::subtractOneYear() { // TODO: Fold in with add()
+//DateTime& DateTime::subtractOneYear() {
 //	// Precondition: Must not be used on days after 28th of any month
 //	if (year() > MIN_YEAR)
 //		_year--;
@@ -299,11 +381,11 @@ int DateTime::year() const {
 //	return *this;
 //}
 //
-//int DateTime::monthCarryBorrow(int& month) {
+//uint16_t DateTime::monthCarryBorrow(uint16_t& month) {
 //	// Accepts a month of any positive or negative value.
 //	// Restores 'month' to a number between 1 and 12
 //	// Returns the number of years to carry/borrow.
-//	int carryBorrow = 0;
+//	uint16_t carryBorrow = 0;
 //	while (month < 1) {
 //		month += MONTHS_PER_YEAR;
 //		carryBorrow--;
@@ -315,135 +397,135 @@ int DateTime::year() const {
 //	return carryBorrow;
 //}
 //
-//void DateTime::add(byte& attribute, long& interval, int limit) {
+//void DateTime::add(uint8_t& attribute, long& uint16_terval, uint16_t limit) {
 //	// For attributes having a range 0 to (LIMIT - 1);
-//	long magnitude = attribute + interval;
+//	long magnitude = attribute + uint16_terval;
 //	if (magnitude < 0) {
-//		interval = magnitude / limit - 1;
-//		magnitude -= interval * limit;
+//		uint16_terval = magnitude / limit - 1;
+//		magnitude -= uint16_terval * limit;
 //	} else {
-//		interval = magnitude / limit;
+//		uint16_terval = magnitude / limit;
 //	}
 //	attribute = magnitude % limit;
 //}
 //
-//DateTime& DateTime::add(long interval, Period period) {
-//	if (!interval) return *this;
+//DateTime& DateTime::add(long uint16_terval, Period period) {
+//	if (!uint16_terval) return *this;
 //	if (period == Millisecond) {
-//		long magnitude = _millisecond + interval;
-//		interval = magnitude / MILLISECONDS_PER_SECOND;
-//		int newValue = magnitude % MILLISECONDS_PER_SECOND;
+//		long magnitude = _millisecond + uint16_terval;
+//		uint16_terval = magnitude / MILLISECONDS_PER_SECOND;
+//		uint16_t newValue = magnitude % MILLISECONDS_PER_SECOND;
 //		if (newValue < 0) {
 //			_millisecond = newValue + MILLISECONDS_PER_SECOND;
-//			interval -= 1;
+//			uint16_terval -= 1;
 //		} else {
 //			_millisecond = newValue;
 //		}
-//		if (interval) period = Second;  // Milliseconds cascade to Seconds
+//		if (uint16_terval) period = Second;  // Milliseconds cascade to Seconds
 //	}
 //	if (period == Second) {
-//		add(_second, interval, SECONDS_PER_MINUTE);
-//		if (interval) period = Minute;  // Seconds cascade to Minutes
+//		add(_second, uint16_terval, SECONDS_PER_MINUTE);
+//		if (uint16_terval) period = Minute;  // Seconds cascade to Minutes
 //	}
 //	if (period == Minute) {
-//		add(_minute, interval, MINUTES_PER_HOUR);
-//		if (interval) period = Hour;    // Minutes cascade to Hours
+//		add(_minute, uint16_terval, MINUTES_PER_HOUR);
+//		if (uint16_terval) period = Hour;    // Minutes cascade to Hours
 //	}
 //	if (period == Hour) {
-//		add(_hour, interval, HOURS_PER_DAY);
-//		if (interval) period = Day;     // Hours cascade to Days
+//		add(_hour, uint16_terval, HOURS_PER_DAY);
+//		if (uint16_terval) period = Day;     // Hours cascade to Days
 //	}
 //
 //	// DAYS
 //	if (period == Day) {
-//		if (interval < 0) { // go backwards
+//		if (uint16_terval < 0) { // go backwards
 //			// 1. Get back to the first of the month if you can
 //			while (_day > 1) {
-//				interval++;
+//				uint16_terval++;
 //				subtractOneDay();
-//				if (!isValid()) interval = 0; // Underflow.
-//				if (!interval) break;
+//				if (!isValid()) uint16_terval = 0; // Underflow.
+//				if (!uint16_terval) break;
 //			}
 //			// 2. Jump by months to January
-//			while (interval && _month > 1) {
-//				int priorMonth = _month - 1;
-//				int priorYear = year() + monthCarryBorrow(priorMonth);
-//				if (daysInMonth(priorMonth, priorYear) <= -interval) {
+//			while (uint16_terval && _month > 1) {
+//				uint16_t priorMonth = _month - 1;
+//				uint16_t priorYear = year() + monthCarryBorrow(priorMonth);
+//				if (daysInMonth(priorMonth, priorYear) <= -uint16_terval) {
 //					subtractOneMonth();
-//					interval += daysInMonth();
-//					if (!isValid()) interval = 0; // Underflow.
+//					uint16_terval += daysInMonth();
+//					if (!isValid()) uint16_terval = 0; // Underflow.
 //				} else break;
 //			}
 //			// 3. Jump by years if you can
-//			int daysPriorYear = daysInYear(year() - 1);
-//			while (-interval >= daysPriorYear) {
-//				interval += daysPriorYear;
+//			uint16_t daysPriorYear = daysInYear(year() - 1);
+//			while (-uint16_terval >= daysPriorYear) {
+//				uint16_terval += daysPriorYear;
 //				subtractOneYear();
-//				if (!isValid()) interval = 0; // blew it. Overflowed.
+//				if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
 //				daysPriorYear = daysInYear(year() - 1);
 //			}
 //			// 4. Jump by months if you can
-//			while (-interval >= daysInMonth()) {
+//			while (-uint16_terval >= daysInMonth()) {
 //				subtractOneMonth();
-//				interval += daysInMonth();
-//				if (!isValid()) interval = 0; // blew it. Overflowed.
+//				uint16_terval += daysInMonth();
+//				if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
 //			}
 //			// 5. Jump by days to finish off
-//			while (interval) {
-//				interval++;
+//			while (uint16_terval) {
+//				uint16_terval++;
 //				subtractOneDay();
-//				if (!isValid()) interval = 0; // blew it. Overflowed.
+//				if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
 //			}
 //		} else {  // go forward
 //			// 1. Get to the first of next month if you can
 //			while (_day > 1) {
-//				interval--;
+//				uint16_terval--;
 //				addOneDay();
-//				if (!isValid()) interval = 0; // blew it. Overflowed.
-//				if (!interval) break;
+//				if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
+//				if (!uint16_terval) break;
 //			}
 //			// 2. Jump by months to January
-//			while (interval && _month > 1) {
-//				if (interval >= daysInMonth()) {
-//					interval -= daysInMonth();
+//			while (uint16_terval && _month > 1) {
+//				if (uint16_terval >= daysInMonth()) {
+//					uint16_terval -= daysInMonth();
 //					addOneMonth();
-//					if (!isValid()) interval = 0; // blew it. Overflowed.
+//					if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
 //				} else {
-//					_day += interval;
-//					interval = 0;
+//					_day += uint16_terval;
+//					uint16_terval = 0;
 //					break;
 //				}
 //			}
 //			// 3. Jump by years if you can
-//			while (interval >= daysInYear()) {
-//				interval -= daysInYear();
+//			while (uint16_terval >= daysInYear()) {
+//				uint16_terval -= daysInYear();
 //				addOneYear();
-//				if (!isValid()) interval = 0; // blew it. Overflowed.
+//				if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
 //			}
 //			// 4. Jump by months if you can
-//			while (interval >= daysInMonth()) {
-//				interval -= daysInMonth();
+//			while (uint16_terval >= daysInMonth()) {
+//				uint16_terval -= daysInMonth();
 //				addOneMonth();
-//				if (!isValid()) interval = 0; // blew it. Overflowed.
+//				if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
 //			}
 //			// 5. Jump by days to finish off
-//			while (interval) {
-//				interval--;
+//			while (uint16_terval) {
+//				uint16_terval--;
 //				addOneDay();
-//				if (!isValid()) interval = 0; // blew it. Overflowed.
+//				if (!isValid()) uint16_terval = 0; // blew it. Overflowed.
 //			}
 //		}
 //	}
 //
-//	if (period == Month) { // Days DON'T cascade into Months
-//		add(_month, interval, MONTHS_PER_YEAR);  // TODO: Doesn't work for months 1-12
-//		if (interval != 0) period = Year;
+//	if (period == Month) { // Days DON'T cascade uint16_to Months
+//		add(_month, uint16_terval, MONTHS_PER_YEAR);  // TODO: Doesn't work for months 1-12
+//		if (uint16_terval != 0) period = Year;
 //	}
 //
-//	if (period == Year) { // Months cascade into years
-//		long testYear = interval + year();
+//	if (period == Year) { // Months cascade uint16_to years
+//		long testYear = uint16_terval + year();
 //		if (testYear > MAX_YEAR || testYear < MIN_YEAR) overflowed();
-//		else _year += interval;
+//		else _year += uint16_terval;
 //	}
 //
 //	// Correct for different month lengths, if required.
@@ -456,9 +538,9 @@ int DateTime::year() const {
 //}
 //
 //#ifndef ARDUINO
-//char* DateTime::intToString(int value) {
+//char* DateTime::uint16_tToString(uint16_t value) {
 //	static char ramBuffer[10];
-//	sprintf(ramBuffer, "%d", value);
+//	spruint16_tf(ramBuffer, "%d", value);
 //	return ramBuffer;
 //}
 //#endif
@@ -470,26 +552,26 @@ int DateTime::year() const {
 //		output = new String("8888-88-88 88:88:88.888");
 //	} else {
 //		output = new String();
-//		*output += intToString(year());
+//		*output += uint16_tToString(year());
 //		*output += '-';
 //		if (_month < 10) *output += '0';
-//		*output += intToString(_month);
+//		*output += uint16_tToString(_month);
 //		*output += '-';
 //		if (_day < 10) *output += '0';
-//		*output += intToString(_day);
+//		*output += uint16_tToString(_day);
 //		*output += ' ';
 //		if (_hour < 10) *output += '0';
-//		*output += intToString(_hour);
+//		*output += uint16_tToString(_hour);
 //		*output += ':';
 //		if (_minute < 10) *output += '0';
-//		*output += intToString(_minute);
+//		*output += uint16_tToString(_minute);
 //		*output += ':';
 //		if (_second < 10) *output += '0';
-//		*output += intToString(_second);
+//		*output += uint16_tToString(_second);
 //		*output += '.';
 //		if (_millisecond < 100) *output += '0';
 //		if (_millisecond < 10) *output += '0';
-//		*output += intToString(_millisecond);
+//		*output += uint16_tToString(_millisecond);
 //	}
 //
 //	delete(_string);
