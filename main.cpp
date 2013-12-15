@@ -2,14 +2,14 @@
 #include <iostream>
 #endif
 
-#include "DateTime.h"
+//#include "DateTime.h"
 
 using namespace std;
 
 int tests = 0;
 int fails = 0;
 
-//void testModAddSubSmall(byte value, int addend, byte modulo, byte origin, int expected, int expectedCarry) {
+//void testModAddSubSmall(uint8_t value, int addend, uint8_t modulo, uint8_t origin, int expected, int expectedCarry) {
 //
 //	int originalValue = value;
 //	int carry = DateTime::modAddSub(value, addend, modulo, origin);
@@ -31,9 +31,23 @@ int fails = 0;
 //	}
 //}
 
+//void testModAddSub(uint8_t value, int addend, uint8_t modulo, uint8_t expectedValue, int expectedCarry) {
+//
+//    uint8_t originalValue = value;
+//    int carry = DateTime::modAddSub(value, addend, modulo);
+//    tests++;
+//    if (value != expectedValue || carry != expectedCarry) {
+//        fails++;
+//		printf("FAILED: %d + %d %%%d. Got %d carry %d. Expected %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
+//    }
+//}
+
 int main() {
 
-	//texcelestModAddSubLarge(900, 50000, 1000, 0, 900, 50);
+//	testModAddSub(1, 1, 60, 2, 0);
+
+    uint8_t junk = 7;
+    printf("%d", junk);
 
 	if (fails == 0)
 		printf("%d tests passed.", tests);
@@ -63,11 +77,11 @@ int main() {
 //}
 //
 //void testDateTimeValues(int year,
-//						byte month,
-//						byte day,
-//						byte hour,
-//						byte minute,
-//						byte second,
+//						uint8_t month,
+//						uint8_t day,
+//						uint8_t hour,
+//						uint8_t minute,
+//						uint8_t second,
 //						int millisecond,
 //						DateTime actual,
 //						String message) {
@@ -100,7 +114,7 @@ int main() {
 //	}
 //}
 //
-//void testDaysInMonth(byte month, int year, byte expected) {
+//void testDaysInMonth(uint8_t month, int year, uint8_t expected) {
 //	tests++;
 //	if (DateTime(year, month, 1, 0, 0, 0, 0).daysInMonth() != expected) {
 //		fails++;
@@ -124,7 +138,7 @@ int main() {
 ////  }
 ////}
 ////
-////void testGetAdjustment(DateTime test, byte expected) {
+////void testGetAdjustment(DateTime test, uint8_t expected) {
 ////  tests++;
 ////  if (test.getAdjustment() != expected) {
 ////    fails++;
@@ -169,9 +183,9 @@ int main() {
 //	}
 //}
 //
-//void testAddByte(byte value, long interval, int limit, byte expectedValue, long expectedInterval) {
+//void testAdduint8_t(uint8_t value, long interval, int limit, uint8_t expectedValue, long expectedInterval) {
 //	tests++;
-//	byte actualValue = value;
+//	uint8_t actualValue = value;
 //	long actualInterval = interval;
 //	DateTime::add(actualValue, actualInterval, (int16_t)limit);
 //	if (actualValue != expectedValue || actualInterval != expectedInterval) {
@@ -181,7 +195,7 @@ int main() {
 //	}
 //}
 //
-//void testGetAdjustment(DateTime value, byte expectedAdjustment) {
+//void testGetAdjustment(DateTime value, uint8_t expectedAdjustment) {
 //	tests++;
 //	if (value.getAdjustment() != expectedAdjustment) {
 //		fails++;
@@ -492,18 +506,18 @@ int main() {
 //	testToString(DateTime(1000, 0, 0, 100, 100, 100, 10000), "8888-88-88 88:88:88.888");  // Invalid date
 //
 //	printf("Testing: add()\n");
-//	testAddByte(0, 0, 24, 0, 0);
-//	testAddByte(23, 0, 24, 23, 0);
-//	testAddByte(0, 23, 24, 23, 0);
-//	testAddByte(10, 13, 24, 23, 0);
-//	testAddByte(10, 14, 24, 0, 1);
-//	testAddByte(100, 0, 24, 4, 4);
-//	testAddByte(0, 100, 24, 4, 4);
-//	testAddByte(100, 100, 24, 8, 8);
+//	testAdduint8_t(0, 0, 24, 0, 0);
+//	testAdduint8_t(23, 0, 24, 23, 0);
+//	testAdduint8_t(0, 23, 24, 23, 0);
+//	testAdduint8_t(10, 13, 24, 23, 0);
+//	testAdduint8_t(10, 14, 24, 0, 1);
+//	testAdduint8_t(100, 0, 24, 4, 4);
+//	testAdduint8_t(0, 100, 24, 4, 4);
+//	testAdduint8_t(100, 100, 24, 8, 8);
 //
-//	testAddByte(0, -1, 24, 23, -1);
-//	testAddByte(0, -23, 24, 1, -1);
-//	testAddByte(0, -100, 24, 20, -5);
+//	testAdduint8_t(0, -1, 24, 23, -1);
+//	testAdduint8_t(0, -23, 24, 1, -1);
+//	testAdduint8_t(0, -100, 24, 20, -5);
 //
 //	printf("Testing: monthCarryBorrow()\n");
 //	testMonthCarryBorrow(1, 1, 0);

@@ -21,82 +21,95 @@ char* DateTime::toString() {
 	return DateTime::_line;
 }
 
-int8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t modulo) {
-	// Range(addendMinuend)		0 to 255
-	// Range(addendSubtrahend)	-128 to 127
-	// Range(modulo)			0 to 255
+static int modAddSub(uint8_t& addendMinuend, int addendSubtrahend, uint8_t rangeModulo) {
 
-	// Range(sum): -128 to 382 (doesn't fit int8_t or uint8_t and is signed)
-	int16_t sum = addendMinuend + addendSubtrahend;
-
-	// Range(intermediate): -128 (sum <= -modulo) to 254 (modulo = 255)
-	int16_t intermediate = sum % modulo;
-
-	if (intermediate < 0) {	// if -addendSubtrahend > addendMinuend
-		// Range(addendMinuend): 1 to (modulo - 1) can be case to uint8_t
-		addendMinuend = (uint8_t)(intermediate + modulo);
-		// Range(return): if sum = 382, modulo = 2, then return = 191. Requires int16_t.
-		// Range(return): if sum = 382, modulo = 3, then return = 127. Requires int8_t.
-		return sum / modulo - 1;
-	//} else if (intermediate > uint8_t_max) {	// Can't happen
-	//	// Range(return): if sum 382, modulo >
-	//	addendMinuend = (uint8_t)(intermediate - modulo);
-	//	return sum / modulo + 1;
-	} else {
-		addendMinuend = (uint8_t)intermediate;
-		return sum / modulo;
-	}
-}
-
-uint8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t rangeModulo, uint8_t rangeStart) {
-
-	// Data ranges:
-	// addendMinuend	0 to 255
-	// addendSubtrahend -128 to 127
-	// rangeModulo		0 to 255
-	// rangeStart		0 to 255
-
-	// Range of allowable addendMinuend values is:
-	// rangeStart ... rangeStart + rangeModulo - 1
-
-	// Range: zeroOffsetSum -383 (0 - 128 - 255) to 382 (255 + 127 - 0)
-	uint16_t zeroOffsetSum = addendMinuend + addendSubtrahend - rangeStart;
-
-	uint16_t intermediate = zeroOffsetSum % rangeModulo + rangeStart;
-
-	if (intermediate < rangeStart) {	// Fix underflow of uint8_t data type
-		addendMinuend = (uint8_t)(intermediate + rangeModulo);
-		return zeroOffsetSum / rangeModulo - 1;
-	} else if (intermediate > uint8_t_max) {
-		addendMinuend = (uint8_t)(intermediate - rangeModulo);
-		return zeroOffsetSum / rangeModulo + 1;
-	} else {
-		addendMinuend = (uint8_t)intermediate;
-		return zeroOffsetSum / rangeModulo;
-	}
+    int intermediate = addendMinuend + addendSubtrahend; // Can roll over!
+    int carry = intermediate / rangeModulo;
+    addendMinuend = (uint8_t)(intermediate % rangeModulo);
+    if (carry < 0) {
+        carry--;
+        addendMinuend += rangeModulo;
+    }
+    return carry;
 
 }
 
-uint16_t DateTime::modAddSub(uint16_t& addendMinuend, uint16_t addendSubtrahend, uint16_t rangeModulo, uint16_t rangeStart) {
+//int8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t modulo) {
+//	// Range(addendMinuend)		0 to 255
+//	// Range(addendSubtrahend)	-128 to 127
+//	// Range(modulo)			0 to 255
+//
+//	// Range(sum): -128 to 382 (doesn't fit int8_t or uint8_t and is signed)
+//	int16_t sum = addendMinuend + addendSubtrahend;
+//
+//	// Range(intermediate): -128 (sum <= -modulo) to 254 (modulo = 255)
+//	int16_t intermediate = sum % modulo;
+//
+//	if (intermediate < 0) {	// if -addendSubtrahend > addendMinuend
+//		// Range(addendMinuend): 1 to (modulo - 1) can be case to uint8_t
+//		addendMinuend = (uint8_t)(intermediate + modulo);
+//		// Range(return): if sum = 382, modulo = 2, then return = 191. Requires int16_t.
+//		// Range(return): if sum = 382, modulo = 3, then return = 127. Requires int8_t.
+//		return sum / modulo - 1;
+//	//} else if (intermediate > uint8_t_max) {	// Can't happen
+//	//	// Range(return): if sum 382, modulo >
+//	//	addendMinuend = (uint8_t)(intermediate - modulo);
+//	//	return sum / modulo + 1;
+//	} else {
+//		return sum / modulo;
+//		addendMinuend = (uint8_t)intermediate;
+//	}
+//}
 
-	// Range of allowable addendMinuend values is:
-	// rangeStart ... rangeStart + rangeModulo - 1
+//uint8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t rangeModulo, uint8_t rangeStart) {
+//
+//	// Data ranges:
+//	// addendMinuend	0 to 255
+//	// addendSubtrahend -128 to 127
+//	// rangeModulo		0 to 255
+//	// rangeStart		0 to 255
+//
+//	// Range of allowable addendMinuend values is:
+//	// rangeStart ... rangeStart + rangeModulo - 1
+//
+//	// Range: zeroOffsetSum -383 (0 - 128 - 255) to 382 (255 + 127 - 0)
+//	uint16_t zeroOffsetSum = addendMinuend + addendSubtrahend - rangeStart;
+//
+//	uint16_t intermediate = zeroOffsetSum % rangeModulo + rangeStart;
+//
+//	if (intermediate < rangeStart) {	// Fix underflow of uint8_t data type
+//		addendMinuend = (uint8_t)(intermediate + rangeModulo);
+//		return zeroOffsetSum / rangeModulo - 1;
+//	} else if (intermediate > uint8_t_max) {
+//		addendMinuend = (uint8_t)(intermediate - rangeModulo);
+//		return zeroOffsetSum / rangeModulo + 1;
+//	} else {
+//		addendMinuend = (uint8_t)intermediate;
+//		return zeroOffsetSum / rangeModulo;
+//	}
+//
+//}
 
-	uint16_t zeroOffsetSum = addendMinuend + addendSubtrahend - rangeStart;
-	uint16_t intermediate = zeroOffsetSum % rangeModulo + rangeStart;
-
-	if (intermediate < rangeStart) {	// Fix underflow of uint8_t data type
-		addendMinuend = (uint8_t)(intermediate + rangeModulo);
-		return zeroOffsetSum / rangeModulo - 1;
-	} else if (intermediate > uint16_t_max) {
-		addendMinuend = (uint8_t)(intermediate - rangeModulo);
-		return zeroOffsetSum / rangeModulo + 1;
-	} else {
-		addendMinuend = (uint8_t)intermediate;
-		return zeroOffsetSum / rangeModulo;
-	}
-
-}
+//uint16_t DateTime::modAddSub(uint16_t& addendMinuend, uint16_t addendSubtrahend, uint16_t rangeModulo, uint16_t rangeStart) {
+//
+//	// Range of allowable addendMinuend values is:
+//	// rangeStart ... rangeStart + rangeModulo - 1
+//
+//	uint16_t zeroOffsetSum = addendMinuend + addendSubtrahend - rangeStart;
+//	uint16_t intermediate = zeroOffsetSum % rangeModulo + rangeStart;
+//
+//	if (intermediate < rangeStart) {	// Fix underflow of uint8_t data type
+//		addendMinuend = (uint8_t)(intermediate + rangeModulo);
+//		return zeroOffsetSum / rangeModulo - 1;
+//	} else if (intermediate > uint16_t_max) {
+//		addendMinuend = (uint8_t)(intermediate - rangeModulo);
+//		return zeroOffsetSum / rangeModulo + 1;
+//	} else {
+//		addendMinuend = (uint8_t)intermediate;
+//		return zeroOffsetSum / rangeModulo;
+//	}
+//
+//}
 
 //uint8_t DateTime::subtract(uint8_t &minuendDifference, uint8_t subtrahend, uint8_t modulo, uint8_t floor) {
 //

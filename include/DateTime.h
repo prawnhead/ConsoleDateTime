@@ -12,6 +12,7 @@
 //	#define PROGMEM
 //	typedef string String;
 //	typedef bool boolean;
+    typedef uint8_t uint8_t;
 #else
 	#include <Arduino.h>
 	#define int8_t_max 127
@@ -56,8 +57,9 @@ class DateTime {
 	public:
 		DateTime();
 		uint16_t year() const;
-		static uint16_t modAddSub(uint8_t& addendMinuend, uint16_t addendSubtrahend, uint8_t rangeModulo, uint8_t rangeStart);
-		static uint16_t modAddSub(uint16_t& addendMinuend, uint16_t addendSubtrahend, uint16_t rangeModulo, uint16_t rangeStart);
+		static int modAddSub(uint8_t& addendMinuend, int addendSubtrahend, uint8_t rangeModulo);
+//		static uint16_t modAddSub(uint8_t& addendMinuend, uint16_t addendSubtrahend, uint8_t rangeModulo, uint8_t rangeStart);
+//		static uint16_t modAddSub(uint16_t& addendMinuend, uint16_t addendSubtrahend, uint16_t rangeModulo, uint16_t rangeStart);
 //		uint8_t month() const;
 //		uint8_t day() const;
 //		uint8_t hour() const;
