@@ -40,14 +40,23 @@ char* DateTime::toString() {
  */
 int16_t DateTime::modAddSub8(uint8_t& addendMinuend, int16_t addendSubtrahend, uint8_t rangeModulo) {
 
-    int16_t intermediate = addendMinuend + addendSubtrahend; // Can roll over!
+    int16_t intermediate = addendMinuend + addendSubtrahend;
+        // addendMinuend can only be positive.
+        // Rolls over when intermediate > MAX(int16_t)
+        // Deliberately chosen not to be int32_t, which
+        // would fix rollover, but upgrades the operation
+        // to 4-byte values, causing performance hit.
+
     int16_t carry = intermediate / rangeModulo;
+        // Cannot rollover.
+
     intermediate = intermediate % rangeModulo;
+        // intermediate range: -(rangeModulo - 1) to (rangeModulo - 1)
 
     if (intermediate < 0) {
         carry--;
         intermediate += rangeModulo;
-    }
+    }   // intermediate range: 0 to (rangeModulo - 1)
 
     addendMinuend = (uint8_t)intermediate;
     return carry;
@@ -72,18 +81,27 @@ int16_t DateTime::modAddSub8(uint8_t& addendMinuend, int16_t addendSubtrahend, u
  */
 int16_t DateTime::modAddSub16(uint16_t& addendMinuend, int16_t addendSubtrahend, uint16_t rangeModulo) {
 
-    int16_t intermediate = addendMinuend + addendSubtrahend;// addendMinuend can only be positive.
-                                                            // Rolls over when intermediate > MAX(int16_t)
+    int16_t intermediate = addendMinuend + addendSubtrahend;
+        // addendMinuend can only be positive.
+        // Rolls over when intermediate > MAX(int16_t)
+        // Deliberately chosen not to be int32_t, which
+        // would fix rollover, but upgrades the operation
+        // to 4-byte values, causing performance hit.
+
     int16_t carry = intermediate / rangeModulo;
+        // Cannot rollover.
+
     intermediate = intermediate % rangeModulo;
+        // intermediate range: -(rangeModulo - 1) to (rangeModulo - 1)
 
     if (intermediate < 0) {
         carry--;
         intermediate += rangeModulo;
-    }
+    }   // intermediate range: 0 to (rangeModulo - 1)
 
     addendMinuend = (uint16_t)intermediate;
     return carry;
+
 }
 
 //int8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t modulo) {
