@@ -57,7 +57,8 @@ class DateTime {
 	public:
 		DateTime();
 		uint16_t year() const;
-		static int modAddSub(uint8_t& addendMinuend, int addendSubtrahend, uint8_t rangeModulo);
+		static int16_t modAddSub8(uint8_t& addendMinuend, int16_t addendSubtrahend, uint8_t rangeModulo);
+		static int16_t modAddSub16(uint16_t& addendMinuend, int16_t addendSubtrahend, uint16_t rangeModulo);
 //		static uint16_t modAddSub(uint8_t& addendMinuend, uint16_t addendSubtrahend, uint8_t rangeModulo, uint8_t rangeStart);
 //		static uint16_t modAddSub(uint16_t& addendMinuend, uint16_t addendSubtrahend, uint16_t rangeModulo, uint16_t rangeStart);
 //		uint8_t month() const;

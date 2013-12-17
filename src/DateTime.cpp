@@ -21,17 +21,69 @@ char* DateTime::toString() {
 	return DateTime::_line;
 }
 
-static int modAddSub(uint8_t& addendMinuend, int addendSubtrahend, uint8_t rangeModulo) {
+/** \brief Core function for performing zero-based modular arithmetic.
+ *
+ * Choice of correct data types is critical to the operation of this function. As its
+ * intended use is for Arduino, it needs to have the smallest possible memory footprint
+ * and yet calculate correct values.
+ * Use of a zero modulus will cause divide-by-zero errors.
+ * Overflow will cause incorrect results if (addendMinuend + addendSubtrahend) > (max(int) - rangeModulus)
+ * and likewise for subtraction.
+ * This version of the function for manipulation of uint8_t values (modulo <= 255).
+ * addendMinuend and rangeModulo can contain values in the range 0 to 255.
+ *
+ * \param addendMinuend the value being added to or subtracted from. Also the return value.
+ * \param addendSubtrahend the value being added or subtracted.
+ * \param rangeModulo the modulus for the arithmetic operation.
+ * \return the carry/borrow of the result.
+ *
+ */
+int16_t DateTime::modAddSub8(uint8_t& addendMinuend, int16_t addendSubtrahend, uint8_t rangeModulo) {
 
-    int intermediate = addendMinuend + addendSubtrahend; // Can roll over!
-    int carry = intermediate / rangeModulo;
-    addendMinuend = (uint8_t)(intermediate % rangeModulo);
-    if (carry < 0) {
+    int16_t intermediate = addendMinuend + addendSubtrahend; // Can roll over!
+    int16_t carry = intermediate / rangeModulo;
+    intermediate = intermediate % rangeModulo;
+
+    if (intermediate < 0) {
         carry--;
-        addendMinuend += rangeModulo;
+        intermediate += rangeModulo;
     }
-    return carry;
 
+    addendMinuend = (uint8_t)intermediate;
+    return carry;
+}
+
+/** \brief Core function for performing zero-based modular arithmetic.
+ *
+ * Choice of correct data types is critical to the operation of this function. As its
+ * intended use is for Arduino, it needs to have the smallest possible memory footprint
+ * and yet calculate correct values.
+ * Use of a zero modulus will cause divide-by-zero errors.
+ * Overflow will cause incorrect results if (addendMinuend + addendSubtrahend) > (max(int) - rangeModulus)
+ * and likewise for subtraction.
+ * This version of the function for manipulation of uint16_t values (modulo <= 65535).
+ * addendMinuend and rangeModulo can contain values in the range 0 to 65535.
+ *
+ * \param addendMinuend the value being added to or subtracted from. Also the return value.
+ * \param addendSubtrahend the value being added or subtracted.
+ * \param rangeModulo the modulus for the arithmetic operation.
+ * \return the carry/borrow of the result.
+ *
+ */
+int16_t DateTime::modAddSub16(uint16_t& addendMinuend, int16_t addendSubtrahend, uint16_t rangeModulo) {
+
+    int16_t intermediate = addendMinuend + addendSubtrahend;// addendMinuend can only be positive.
+                                                            // Rolls over when intermediate > MAX(int16_t)
+    int16_t carry = intermediate / rangeModulo;
+    intermediate = intermediate % rangeModulo;
+
+    if (intermediate < 0) {
+        carry--;
+        intermediate += rangeModulo;
+    }
+
+    addendMinuend = (uint16_t)intermediate;
+    return carry;
 }
 
 //int8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t modulo) {
