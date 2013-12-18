@@ -54,7 +54,7 @@ void testModAddSub8(uint8_t value,
     tests++;
     if (shouldSucceed && (value != expectedValue || carry != expectedCarry)) {
         fails++;
-		printf("FAILED: %d + %d %%%d. Got %d carry %d. Expected %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
+		printf("FAILED: %d + %d %% %d. Got %d carry %d. Expected %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
     } else if (!shouldSucceed && value == expectedValue && carry == expectedCarry) {
         fails++;
 		printf("FAILED: %d + %d %%%d. Got %d carry %d. Expected failure but right answer was produced: %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
@@ -70,17 +70,6 @@ int main() {
     // uint8_t          0 to 256
     // int16_t          -32,768 to 32,767
 
-    // TEST FACTORS:
-    //                  01: Add to sum 0
-    //                  02: Add to sum 1
-    //                  03: Add so that sum is 1 less than modulus
-    //                  04: Add so that sum equals modulus
-    //                  05: Add so that sum is 1 more than modulus
-    //                  06: Add to 1 less than 'intermediate' rollover
-    //                  07: Add to 'intermedate' rollover (rollover fail)
-    //                  08: Add to 1 more than 'intermediate' rollover (rollover fail)
-    //                  09: addendMinuend exceeds rangeModulo
-
     // TEST VARIABLES:
     // Name:            Data Type:
     // addendMinuend    uint8_t
@@ -93,341 +82,63 @@ int main() {
     // Anything mod 0 is a divide-by-zero error
     // testModAddSub8(0, 0, 0, 0, 0, true);
     //                      ^
-    // Test case 2:
-    // Factor 01: (0 + 0) % 1 = 0 carry 0
+    // Test case 2: Add to sum 0
+    // (0 + 0) % 1 = 0 carry 0
     testModAddSub8(0, 0, 1, 0, 0, true);
 
-    // Test case 3:
-    // Factor 02: (0 + 1) % 1 = 0 carry 1
+    // Test case 3: Add to sum 1
+    // (0 + 1) % 1 = 0 carry 1
     testModAddSub8(0, 1, 1, 0, 1, true);
 
-    // Test case 4:
-    // Factor 03: (58 + 1) % 60 = 59 carry 0
+    // Test case 4: Add so that sum is 1 less than modulus
+    // (58 + 1) % 60 = 59 carry 0
     testModAddSub8(58, 1, 60, 59, 0, true);
 
-    // Test case 5:
-    // Factor 04: (11 + 49) % 60 = 0 carry 1
+    // Test case 5: Add so that sum equals modulus
+    // (11 + 49) % 60 = 0 carry 1
     testModAddSub8(11, 49, 60, 0, 1, true);
 
-    // Test case 6:
-    // Factor 05: (43 + 18) % 60 = 1 carry 1
+    // Test case 6: Add so that sum is 1 more than modulus
+    // (43 + 18) % 60 = 1 carry 1
     testModAddSub8(43, 18, 60, 1, 1, true);
 
-    // Test case 7:
-    // Factor 06: (1 + 32766) % 60 = 7 carry 546
-    testModAddSub8(1, 32766, 60, 7, 546, true);
+    // Test case 7: Add to 1 less than 'intermediate' rollover
+    // (0 + 32767) % 60 = 7 carry 546
+    testModAddSub8(0, 32767, 60, 7, 546, true);
 
-    // Test case 8:
-    // Factor 07: (1 + 32767) % 60 = 8 carry 546 (OVERFLOW)
+    // Test case 8: Add to 'intermedate' rollover (rollover fail)
+    // (1 + 32767) % 60 = 8 carry 546 (OVERFLOW)
     testModAddSub8(1, 32767, 60, 8, 546, false);
 
-    // Test case 9:
-    // Factor 08: (1 + 32767) % 60 = 9 carry 546
-    testModAddSub8(1, 32767, 60, 9, 546, true);
+    // Test case 9: Add to 1 more than 'intermediate' rollover (rollover fail)
+    // (2 + 32767) % 60 = 9 carry 546 (OVERFLOW)
+    testModAddSub8(2, 32767, 60, 9, 546, false);
 
+    // Test case 10: addendMinuend exceeds rangeModulo
+    // (100 + 0) % 60 = 40 carry 1
+    testModAddSub8(100, 0, 60, 40, 1, true);
 
+    // Test case 11: Add to sum -1
+    // (0 + -1) % 60 = 59 carry -1
+    testModAddSub8(0, -1, 60, 59, -1, true);
 
-    // Testing factors:
-    // - Adding | Subtracting | No Change
-    // - Minimum valid modulus | Maximum valid modulus
-    // - value > modulus | value < modulus
-    // - (value + addend) > (max(int) - modulus) = overflow and error
-
-    // Test value hotspots
-    // Result is one less than modulus
-    // Result = modulus
-    // Result i sone more than modulus
-
-    //         Range              Values
-    // Param0: 0 to 255           0, 1, 58, 59, 60, 255
-    // Param1: -32,768 to 32,767  -32768, -1, 0, 1, 58, 59, 60, 32767
-    // Param2: 0 to 255
-    // Param3: 0 to 255
-    // Param4: -32,768 to 32,767
-
-	// Add maximum testing
-	// Subtract 1 testing
-	// Sutract maximum testing
-
-	// Overflow testing
-
-	// Over modulus testing
-
-//    testModAddSub8(0, -32768, 1, 0, -32768, true);
-//    testModAddSub8(1, -32768, 1, 0, -32767, true);
-//    testModAddSub8(58, -32768, 1, 0, -32710, true);
-//    testModAddSub8(59, -32768, 1, 0, -32709, true);
-//    testModAddSub8(60, -32768, 1, 0, -32708, true);
-//    testModAddSub8(255, -32768, 1, 0, -32513, true);
-//    testModAddSub8(0, -255, 1, 0, -255, true);
-//    testModAddSub8(1, -255, 1, 0, -254, true);
-//    testModAddSub8(58, -255, 1, 0, -197, true);
-//    testModAddSub8(59, -255, 1, 0, -196, true);
-//    testModAddSub8(60, -255, 1, 0, -195, true);
-//    testModAddSub8(255, -255, 1, 0, 0, true);
-//    testModAddSub8(0, -60, 1, 0, -60, true);
-//    testModAddSub8(1, -60, 1, 0, -59, true);
-//    testModAddSub8(58, -60, 1, 0, -2, true);
-//    testModAddSub8(59, -60, 1, 0, -1, true);
-//    testModAddSub8(60, -60, 1, 0, 0, true);
-//    testModAddSub8(255, -60, 1, 0, 195, true);
-//    testModAddSub8(0, -59, 1, 0, -59, true);
-//    testModAddSub8(1, -59, 1, 0, -58, true);
-//    testModAddSub8(58, -59, 1, 0, -1, true);
-//    testModAddSub8(59, -59, 1, 0, 0, true);
-//    testModAddSub8(60, -59, 1, 0, 1, true);
-//    testModAddSub8(255, -59, 1, 0, 196, true);
-//    testModAddSub8(0, -58, 1, 0, -58, true);
-//    testModAddSub8(1, -58, 1, 0, -57, true);
-//    testModAddSub8(58, -58, 1, 0, 0, true);
-//    testModAddSub8(59, -58, 1, 0, 1, true);
-//    testModAddSub8(60, -58, 1, 0, 2, true);
-//    testModAddSub8(255, -58, 1, 0, 197, true);
-//    testModAddSub8(0, -2, 1, 0, -2, true);
-//    testModAddSub8(1, -2, 1, 0, -1, true);
-//    testModAddSub8(58, -2, 1, 0, 56, true);
-//    testModAddSub8(59, -2, 1, 0, 57, true);
-//    testModAddSub8(60, -2, 1, 0, 58, true);
-//    testModAddSub8(255, -2, 1, 0, 253, true);
-//    testModAddSub8(0, -1, 1, 0, -1, true);
-//    testModAddSub8(1, -1, 1, 0, 0, true);
-//    testModAddSub8(58, -1, 1, 0, 57, true);
-//    testModAddSub8(59, -1, 1, 0, 58, true);
-//    testModAddSub8(60, -1, 1, 0, 59, true);
-//    testModAddSub8(255, -1, 1, 0, 254, true);
-//    testModAddSub8(0, 0, 1, 0, 0, true);
-//    testModAddSub8(1, 0, 1, 0, 1, true);
-//    testModAddSub8(58, 0, 1, 0, 58, true);
-//    testModAddSub8(59, 0, 1, 0, 59, true);
-//    testModAddSub8(60, 0, 1, 0, 60, true);
-//    testModAddSub8(255, 0, 1, 0, 255, true);
-//    testModAddSub8(0, 1, 1, 0, 1, true);
-//    testModAddSub8(1, 1, 1, 0, 2, true);
-//    testModAddSub8(58, 1, 1, 0, 59, true);
-//    testModAddSub8(59, 1, 1, 0, 60, true);
-//    testModAddSub8(60, 1, 1, 0, 61, true);
-//    testModAddSub8(255, 1, 1, 0, 256, true);
-//    testModAddSub8(0, 2, 1, 0, 2, true);
-//    testModAddSub8(1, 2, 1, 0, 3, true);
-//    testModAddSub8(58, 2, 1, 0, 60, true);
-//    testModAddSub8(59, 2, 1, 0, 61, true);
-//    testModAddSub8(60, 2, 1, 0, 62, true);
-//    testModAddSub8(255, 2, 1, 0, 257, true);
-//    testModAddSub8(0, 58, 1, 0, 58, true);
-//    testModAddSub8(1, 58, 1, 0, 59, true);
-//    testModAddSub8(58, 58, 1, 0, 116, true);
-//    testModAddSub8(59, 58, 1, 0, 117, true);
-//    testModAddSub8(60, 58, 1, 0, 118, true);
-//    testModAddSub8(255, 58, 1, 0, 313, true);
-//    testModAddSub8(0, 59, 1, 0, 59, true);
-//    testModAddSub8(1, 59, 1, 0, 60, true);
-//    testModAddSub8(58, 59, 1, 0, 117, true);
-//    testModAddSub8(59, 59, 1, 0, 118, true);
-//    testModAddSub8(60, 59, 1, 0, 119, true);
-//    testModAddSub8(255, 59, 1, 0, 314, true);
-//    testModAddSub8(0, 60, 1, 0, 60, true);
-//    testModAddSub8(1, 60, 1, 0, 61, true);
-//    testModAddSub8(58, 60, 1, 0, 118, true);
-//    testModAddSub8(59, 60, 1, 0, 119, true);
-//    testModAddSub8(60, 60, 1, 0, 120, true);
-//    testModAddSub8(255, 60, 1, 0, 315, true);
-//    testModAddSub8(0, 255, 1, 0, 255, true);
-//    testModAddSub8(1, 255, 1, 0, 256, true);
-//    testModAddSub8(58, 255, 1, 0, 313, true);
-//    testModAddSub8(59, 255, 1, 0, 314, true);
-//    testModAddSub8(60, 255, 1, 0, 315, true);
-//    testModAddSub8(255, 255, 1, 0, 510, true);
-//    testModAddSub8(0, 32767, 1, 0, 32767, true);
-//    testModAddSub8(1, 32767, 1, 0, 32768, false);  // Failing Case
-//    testModAddSub8(58, 32767, 1, 0, 32825, false);  // Failing Case
-//    testModAddSub8(59, 32767, 1, 0, 32826, false);  // Failing Case
-//    testModAddSub8(60, 32767, 1, 0, 32827, false);  // Failing Case
-//    testModAddSub8(255, 32767, 1, 0, 33022, false);  // Failing Case
-//    testModAddSub8(0, -32768, 60, 52, -547, true);
-//    testModAddSub8(1, -32768, 60, 53, -547, true);
-//    testModAddSub8(58, -32768, 60, 50, -546, true);
-//    testModAddSub8(59, -32768, 60, 51, -546, true);
-//    testModAddSub8(60, -32768, 60, 52, -546, true);
-//    testModAddSub8(255, -32768, 60, 7, -542, true);
-//    testModAddSub8(0, -255, 60, 45, -5, true);
-//    testModAddSub8(1, -255, 60, 46, -5, true);
-//    testModAddSub8(58, -255, 60, 43, -4, true);
-//    testModAddSub8(59, -255, 60, 44, -4, true);
-//    testModAddSub8(60, -255, 60, 45, -4, true);
-//    testModAddSub8(255, -255, 60, 0, 0, true);
-//    testModAddSub8(0, -60, 60, 0, -1, true);
-//    testModAddSub8(1, -60, 60, 1, -1, true);
-//    testModAddSub8(58, -60, 60, 58, -1, true);
-//    testModAddSub8(59, -60, 60, 59, -1, true);
-//    testModAddSub8(60, -60, 60, 0, 0, true);
-//    testModAddSub8(255, -60, 60, 15, 3, true);
-//    testModAddSub8(0, -59, 60, 1, -1, true);
-//    testModAddSub8(1, -59, 60, 2, -1, true);
-//    testModAddSub8(58, -59, 60, 59, -1, true);
-//    testModAddSub8(59, -59, 60, 0, 0, true);
-//    testModAddSub8(60, -59, 60, 1, 0, true);
-//    testModAddSub8(255, -59, 60, 16, 3, true);
-//    testModAddSub8(0, -58, 60, 2, -1, true);
-//    testModAddSub8(1, -58, 60, 3, -1, true);
-//    testModAddSub8(58, -58, 60, 0, 0, true);
-//    testModAddSub8(59, -58, 60, 1, 0, true);
-//    testModAddSub8(60, -58, 60, 2, 0, true);
-//    testModAddSub8(255, -58, 60, 17, 3, true);
-//    testModAddSub8(0, -2, 60, 58, -1, true);
-//    testModAddSub8(1, -2, 60, 59, -1, true);
-//    testModAddSub8(58, -2, 60, 56, 0, true);
-//    testModAddSub8(59, -2, 60, 57, 0, true);
-//    testModAddSub8(60, -2, 60, 58, 0, true);
-//    testModAddSub8(255, -2, 60, 13, 4, true);
-//    testModAddSub8(0, -1, 60, 59, -1, true);
-//    testModAddSub8(1, -1, 60, 0, 0, true);
-//    testModAddSub8(58, -1, 60, 57, 0, true);
-//    testModAddSub8(59, -1, 60, 58, 0, true);
-//    testModAddSub8(60, -1, 60, 59, 0, true);
-//    testModAddSub8(255, -1, 60, 14, 4, true);
-//    testModAddSub8(0, 0, 60, 0, 0, true);
-//    testModAddSub8(1, 0, 60, 1, 0, true);
-//    testModAddSub8(58, 0, 60, 58, 0, true);
-//    testModAddSub8(59, 0, 60, 59, 0, true);
-//    testModAddSub8(60, 0, 60, 0, 1, true);
-//    testModAddSub8(255, 0, 60, 15, 4, true);
-//    testModAddSub8(0, 1, 60, 1, 0, true);
-//    testModAddSub8(1, 1, 60, 2, 0, true);
-//    testModAddSub8(58, 1, 60, 59, 0, true);
-//    testModAddSub8(59, 1, 60, 0, 1, true);
-//    testModAddSub8(60, 1, 60, 1, 1, true);
-//    testModAddSub8(255, 1, 60, 16, 4, true);
-//    testModAddSub8(0, 2, 60, 2, 0, true);
-//    testModAddSub8(1, 2, 60, 3, 0, true);
-//    testModAddSub8(58, 2, 60, 0, 1, true);
-//    testModAddSub8(59, 2, 60, 1, 1, true);
-//    testModAddSub8(60, 2, 60, 2, 1, true);
-//    testModAddSub8(255, 2, 60, 17, 4, true);
-//    testModAddSub8(0, 58, 60, 58, 0, true);
-//    testModAddSub8(1, 58, 60, 59, 0, true);
-//    testModAddSub8(58, 58, 60, 56, 1, true);
-//    testModAddSub8(59, 58, 60, 57, 1, true);
-//    testModAddSub8(60, 58, 60, 58, 1, true);
-//    testModAddSub8(255, 58, 60, 13, 5, true);
-//    testModAddSub8(0, 59, 60, 59, 0, true);
-//    testModAddSub8(1, 59, 60, 0, 1, true);
-//    testModAddSub8(58, 59, 60, 57, 1, true);
-//    testModAddSub8(59, 59, 60, 58, 1, true);
-//    testModAddSub8(60, 59, 60, 59, 1, true);
-//    testModAddSub8(255, 59, 60, 14, 5, true);
-//    testModAddSub8(0, 60, 60, 0, 1, true);
-//    testModAddSub8(1, 60, 60, 1, 1, true);
-//    testModAddSub8(58, 60, 60, 58, 1, true);
-//    testModAddSub8(59, 60, 60, 59, 1, true);
-//    testModAddSub8(60, 60, 60, 0, 2, true);
-//    testModAddSub8(255, 60, 60, 15, 5, true);
-//    testModAddSub8(0, 255, 60, 15, 4, true);
-//    testModAddSub8(1, 255, 60, 16, 4, true);
-//    testModAddSub8(58, 255, 60, 13, 5, true);
-//    testModAddSub8(59, 255, 60, 14, 5, true);
-//    testModAddSub8(60, 255, 60, 15, 5, true);
-//    testModAddSub8(255, 255, 60, 30, 8, true);
-//    testModAddSub8(0, 32767, 60, 7, 546, true);
-//    testModAddSub8(1, 32767, 60, 8, 546, false);  // Failing Case
-//    testModAddSub8(58, 32767, 60, 5, 547, false);  // Failing Case
-//    testModAddSub8(59, 32767, 60, 6, 547, false);  // Failing Case
-//    testModAddSub8(60, 32767, 60, 7, 547, false);  // Failing Case
-//    testModAddSub8(255, 32767, 60, 22, 550, false);  // Failing Case
-//    testModAddSub8(0, -32768, 255, 127, -129, true);
-//    testModAddSub8(1, -32768, 255, 128, -129, true);
-//    testModAddSub8(58, -32768, 255, 185, -129, true);
-//    testModAddSub8(59, -32768, 255, 186, -129, true);
-//    testModAddSub8(60, -32768, 255, 187, -129, true);
-//    testModAddSub8(255, -32768, 255, 127, -128, true);
-//    testModAddSub8(0, -255, 255, 0, -1, true);
-//    testModAddSub8(1, -255, 255, 1, -1, true);
-//    testModAddSub8(58, -255, 255, 58, -1, true);
-//    testModAddSub8(59, -255, 255, 59, -1, true);
-//    testModAddSub8(60, -255, 255, 60, -1, true);
-//    testModAddSub8(255, -255, 255, 0, 0, true);
-//    testModAddSub8(0, -60, 255, 195, -1, true);
-//    testModAddSub8(1, -60, 255, 196, -1, true);
-//    testModAddSub8(58, -60, 255, 253, -1, true);
-//    testModAddSub8(59, -60, 255, 254, -1, true);
-//    testModAddSub8(60, -60, 255, 0, 0, true);
-//    testModAddSub8(255, -60, 255, 195, 0, true);
-//    testModAddSub8(0, -59, 255, 196, -1, true);
-//    testModAddSub8(1, -59, 255, 197, -1, true);
-//    testModAddSub8(58, -59, 255, 254, -1, true);
-//    testModAddSub8(59, -59, 255, 0, 0, true);
-//    testModAddSub8(60, -59, 255, 1, 0, true);
-//    testModAddSub8(255, -59, 255, 196, 0, true);
-//    testModAddSub8(0, -58, 255, 197, -1, true);
-//    testModAddSub8(1, -58, 255, 198, -1, true);
-//    testModAddSub8(58, -58, 255, 0, 0, true);
-//    testModAddSub8(59, -58, 255, 1, 0, true);
-//    testModAddSub8(60, -58, 255, 2, 0, true);
-//    testModAddSub8(255, -58, 255, 197, 0, true);
-//    testModAddSub8(0, -2, 255, 253, -1, true);
-//    testModAddSub8(1, -2, 255, 254, -1, true);
-//    testModAddSub8(58, -2, 255, 56, 0, true);
-//    testModAddSub8(59, -2, 255, 57, 0, true);
-//    testModAddSub8(60, -2, 255, 58, 0, true);
-//    testModAddSub8(255, -2, 255, 253, 0, true);
-//    testModAddSub8(0, -1, 255, 254, -1, true);
-//    testModAddSub8(1, -1, 255, 0, 0, true);
-//    testModAddSub8(58, -1, 255, 57, 0, true);
-//    testModAddSub8(59, -1, 255, 58, 0, true);
-//    testModAddSub8(60, -1, 255, 59, 0, true);
-//    testModAddSub8(255, -1, 255, 254, 0, true);
-//    testModAddSub8(0, 0, 255, 0, 0, true);
-//    testModAddSub8(1, 0, 255, 1, 0, true);
-//    testModAddSub8(58, 0, 255, 58, 0, true);
-//    testModAddSub8(59, 0, 255, 59, 0, true);
-//    testModAddSub8(60, 0, 255, 60, 0, true);
-//    testModAddSub8(255, 0, 255, 0, 1, true);
-//    testModAddSub8(0, 1, 255, 1, 0, true);
-//    testModAddSub8(1, 1, 255, 2, 0, true);
-//    testModAddSub8(58, 1, 255, 59, 0, true);
-//    testModAddSub8(59, 1, 255, 60, 0, true);
-//    testModAddSub8(60, 1, 255, 61, 0, true);
-//    testModAddSub8(255, 1, 255, 1, 1, true);
-//    testModAddSub8(0, 2, 255, 2, 0, true);
-//    testModAddSub8(1, 2, 255, 3, 0, true);
-//    testModAddSub8(58, 2, 255, 60, 0, true);
-//    testModAddSub8(59, 2, 255, 61, 0, true);
-//    testModAddSub8(60, 2, 255, 62, 0, true);
-//    testModAddSub8(255, 2, 255, 2, 1, true);
-//    testModAddSub8(0, 58, 255, 58, 0, true);
-//    testModAddSub8(1, 58, 255, 59, 0, true);
-//    testModAddSub8(58, 58, 255, 116, 0, true);
-//    testModAddSub8(59, 58, 255, 117, 0, true);
-//    testModAddSub8(60, 58, 255, 118, 0, true);
-//    testModAddSub8(255, 58, 255, 58, 1, true);
-//    testModAddSub8(0, 59, 255, 59, 0, true);
-//    testModAddSub8(1, 59, 255, 60, 0, true);
-//    testModAddSub8(58, 59, 255, 117, 0, true);
-//    testModAddSub8(59, 59, 255, 118, 0, true);
-//    testModAddSub8(60, 59, 255, 119, 0, true);
-//    testModAddSub8(255, 59, 255, 59, 1, true);
-//    testModAddSub8(0, 60, 255, 60, 0, true);
-//    testModAddSub8(1, 60, 255, 61, 0, true);
-//    testModAddSub8(58, 60, 255, 118, 0, true);
-//    testModAddSub8(59, 60, 255, 119, 0, true);
-//    testModAddSub8(60, 60, 255, 120, 0, true);
-//    testModAddSub8(255, 60, 255, 60, 1, true);
-//    testModAddSub8(0, 255, 255, 0, 1, true);
-//    testModAddSub8(1, 255, 255, 1, 1, true);
-//    testModAddSub8(58, 255, 255, 58, 1, true);
-//    testModAddSub8(59, 255, 255, 59, 1, true);
-//    testModAddSub8(60, 255, 255, 60, 1, true);
-//    testModAddSub8(255, 255, 255, 0, 2, true);
-//    testModAddSub8(0, 32767, 255, 127, 128, true);
-//    testModAddSub8(1, 32767, 255, 128, 128, false);  // Failing Case
-//    testModAddSub8(58, 32767, 255, 185, 128, false);  // Failing Case
-//    testModAddSub8(59, 32767, 255, 186, 128, false);  // Failing Case
-//    testModAddSub8(60, 32767, 255, 187, 128, false);  // Failing Case
-//    testModAddSub8(255, 32767, 255, 127, 129, false);  // Failing Case
+    // Test case 12: Return maximum negative carry
+    // (0 + -32768) % 1 = 0 carry -32786
+    testModAddSub8(0, -32768, 1, 0, -32768, true);
 
 	if (fails == 0)
-		printf("%d tests passed.", tests);
-	else
-		printf("Failed %d of %d tests. %.2f%% pass rate.", fails, tests, 100.0*(tests-fails)/tests);
+		printf("\n%d TESTS PASSED.\n\n", tests);
+	else {
+        cout << endl;
+        cout << endl;
+        cout << "  *****   *     * *      **" << endl;
+        cout << "  *      * *    * *      **" << endl;
+        cout << "  ****  *   *   * *      **" << endl;
+        cout << "  *    *******  * *        " << endl;
+        cout << "  *   *       * * *****  **" << endl;
+        cout << endl;
+        printf("Failed %d of %d tests. %.2f%% pass rate.\n\n", fails, tests, 100.0*(tests-fails)/tests);
+	}
 
 	return 0;
 }
