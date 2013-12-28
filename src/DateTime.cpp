@@ -4,6 +4,75 @@
 	using namespace std;
 #endif
 
+char DateTime::line[24] = "";
+
+DateTime::DateTime() {
+	year = 0;
+	month = 0;
+	day = 0;
+	hour = 0;
+	minute = 0;
+	second = 0;
+	millisecond = 0;
+}
+
+char* DateTime::toString() {
+	sprintf(DateTime::line, "%04d-%02d-%02d %02d:%02d:%02d.%03d", year, month, day, hour, minute, second, millisecond);
+	return DateTime::line;
+}
+
+int DateTime::add(short& addendMinuend, int addendSubtrahend, short rangeModulo) {
+
+    if (addendSubtrahend == 0) return 0;
+
+    int intermediate = addendMinuend + addendSubtrahend;
+        // addendMinuend can only be positive.
+        // Rolls over when intermediate > MAX(int16_t)
+        // Deliberately chosen not to be int32_t, which
+        // would fix rollover, but upgrades the operation
+        // to 4-byte values, causing performance hit.
+
+    int carry = intermediate / rangeModulo;
+        // Cannot rollover.
+
+    intermediate = intermediate % rangeModulo;
+        // intermediate range: -(rangeModulo - 1) to (rangeModulo - 1)
+
+    if (intermediate < 0) {
+        carry--;
+        intermediate += rangeModulo;
+    }   // intermediate range: 0 to (rangeModulo - 1)
+
+    addendMinuend = intermediate;
+    return carry;
+}
+
+void DateTime::add(int value, Period period) {
+    switch (period) {
+    case Millisecond:
+        add(add(millisecond, value, mod_milliseconds), DateTime::Second);
+        break;
+    case Second:
+        add(add(second, value, mod_seconds), DateTime::Minute);
+        break;
+    case Minute:
+        add(add(minute, value, mod_minutes), DateTime::Hour);
+        break;
+    case Hour:
+        add(add(hour, value, mod_hours), DateTime::Day);
+        break;
+    default:
+        day += value;
+    }
+}
+
+/*
+#include "DateTime.h"
+
+#ifndef ARDUINO
+	using namespace std;
+#endif
+
 char DateTime::_line[24] = "";
 
 DateTime::DateTime() {
@@ -21,23 +90,23 @@ char* DateTime::toString() {
 	return DateTime::_line;
 }
 
-/** \brief Core function for performing zero-based modular arithmetic.
- *
- * Choice of correct data types is critical to the operation of this function. As its
- * intended use is for Arduino, it needs to have the smallest possible memory footprint
- * and yet calculate correct values.
- * Use of a zero modulus will cause divide-by-zero errors.
- * Overflow will cause incorrect results if (addendMinuend + addendSubtrahend) > (max(int) - rangeModulus)
- * and likewise for subtraction.
- * This version of the function for manipulation of uint8_t values (modulo <= 255).
- * addendMinuend and rangeModulo can contain values in the range 0 to 255.
- *
- * \param addendMinuend the value being added to or subtracted from. Also the return value.
- * \param addendSubtrahend the value being added or subtracted.
- * \param rangeModulo the modulus for the arithmetic operation.
- * \return the carry/borrow of the result.
- *
- */
+// \brief Core function for performing zero-based modular arithmetic.
+// *
+// * Choice of correct data types is critical to the operation of this function. As its
+// * intended use is for Arduino, it needs to have the smallest possible memory footprint
+// * and yet calculate correct values.
+// * Use of a zero modulus will cause divide-by-zero errors.
+// * Overflow will cause incorrect results if (addendMinuend + addendSubtrahend) > (max(int) - rangeModulus)
+// * and likewise for subtraction.
+// * This version of the function for manipulation of uint8_t values (modulo <= 255).
+// * addendMinuend and rangeModulo can contain values in the range 0 to 255.
+// *
+// * \param addendMinuend the value being added to or subtracted from. Also the return value.
+// * \param addendSubtrahend the value being added or subtracted.
+// * \param rangeModulo the modulus for the arithmetic operation.
+// * \return the carry/borrow of the result.
+// *
+
 int16_t DateTime::modAddSub8(uint8_t& addendMinuend, int16_t addendSubtrahend, uint8_t rangeModulo) {
 
     int16_t intermediate = addendMinuend + addendSubtrahend;
@@ -62,25 +131,33 @@ int16_t DateTime::modAddSub8(uint8_t& addendMinuend, int16_t addendSubtrahend, u
     return carry;
 }
 
-/** \brief Core function for performing zero-based modular arithmetic.
- *
- * Choice of correct data types is critical to the operation of this function. As its
- * intended use is for Arduino, it needs to have the smallest possible memory footprint
- * and yet calculate correct values.
- * Use of a zero modulus will cause divide-by-zero errors.
- * Overflow will cause incorrect results if (addendMinuend + addendSubtrahend) > (max(int) - rangeModulus)
- * and likewise for subtraction.
- * This version of the function for manipulation of uint16_t values (modulo <= 65535).
- * addendMinuend and rangeModulo can contain values in the range 0 to 65535.
- *
- * \param addendMinuend the value being added to or subtracted from. Also the return value.
- * \param addendSubtrahend the value being added or subtracted.
- * \param rangeModulo the modulus for the arithmetic operation.
- * \return the carry/borrow of the result.
- *
- */
+// * \brief Core function for performing zero-based modular arithmetic.
+// *
+// * Choice of correct data types is critical to the operation of this function. As its
+// * intended use is for Arduino, it needs to have the smallest possible memory footprint
+// * and yet calculate correct values.
+// * Use of a zero modulus will cause divide-by-zero errors.
+// * Overflow will cause incorrect results if (addendMinuend + addendSubtrahend) > (max(int) - rangeModulus)
+// * and likewise for subtraction.
+// * This version of the function for manipulation of uint16_t values (modulo <= 65535).
+// * addendMinuend and rangeModulo can contain values in the range 0 to 65535.
+// *
+// * \param addendMinuend the value being added to or subtracted from. Also the return value.
+// * \param addendSubtrahend the value being added or subtracted.
+// * \param rangeModulo the modulus for the arithmetic operation.
+// * \return the carry/borrow of the result.
+// *
+//
 int16_t DateTime::modAddSub16(uint16_t& addendMinuend, int16_t addendSubtrahend, uint16_t rangeModulo) {
 
+// TODO Can't determine type conversion rules with these types.
+
+// TODO Does the addendMinuend type need to be unsigned?
+// If I only need to store values bigger than uint8_t, should I just use int16_t?
+// The next line can easily overflow when adding uint16_t to int16_t.
+
+                           // unsigned int int (Arduino)
+                           // uint16_t     int16_t
     int16_t intermediate = addendMinuend + addendSubtrahend;
         // addendMinuend can only be positive.
         // Rolls over when intermediate > MAX(int16_t)
@@ -103,7 +180,7 @@ int16_t DateTime::modAddSub16(uint16_t& addendMinuend, int16_t addendSubtrahend,
     return carry;
 
 }
-
+*/
 //int8_t DateTime::modAddSub(uint8_t& addendMinuend, int8_t addendSubtrahend, uint8_t modulo) {
 //	// Range(addendMinuend)		0 to 255
 //	// Range(addendSubtrahend)	-128 to 127
@@ -197,9 +274,9 @@ int16_t DateTime::modAddSub16(uint16_t& addendMinuend, int16_t addendSubtrahend,
 //	//_line = "Six";
 //}
 //
-uint16_t DateTime::year() const {
-	return MIN_YEAR + _year;
-}
+//uint16_t DateTime::year() const {
+//	return MIN_YEAR + _year;
+//}
 
 //uint8_t DateTime::month() const {
 //	return _month;

@@ -1,6 +1,41 @@
 #ifndef DATETIME_H
 #define DATETIME_H
 
+#ifndef ARDUINO
+	#include <cstdio>
+	#include <iostream>
+#endif
+
+class DateTime {
+private:
+	static const short mod_milliseconds = 1000;
+	static const short mod_seconds = 60;
+	static const short mod_minutes = 60;
+	static const short mod_hours = 24;
+
+    short millisecond, second, minute, hour, day, month, year;
+	static char line[24];
+	static int add(short& addendMinuend, int addendSubtrahend, short rangeModulo);
+protected:
+public:
+    enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
+    DateTime();
+    short getMillisecond() { return millisecond; }
+    short getSecond() { return second; }
+    short getMinute() { return minute; }
+    short getHour() { return hour; }
+    short getDay() { return day; }
+    short getMonth() { return month; }
+    short getYear() { return year; }
+	char* toString();
+	void add(int value, Period period);
+};
+
+#endif // DATETIME_H
+
+/*
+#ifndef DATETIME_H
+#define DATETIME_H
 // http://www.nongnu.org/avr-libc/user-manual/group__avr__stduint16_t.html
 
 
@@ -20,7 +55,7 @@
 	#define INT16_MAX 32767
 	#define UINT16_MAX 65535
 #endif
-//
+
 #define MIN_YEAR 1900
 
 #define NO_STRING "8888-88-88 88:88:88.888"
@@ -74,6 +109,7 @@ class DateTime {
 };
 
 #endif // DATETIME_H
+*/
 
 //#define MILLISECONDS_PER_SECOND 1000
 //#define SECONDS_PER_MINUTE 60

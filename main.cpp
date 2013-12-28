@@ -1,9 +1,51 @@
+#include "DateTime.h"
+#include <iostream>
+//#include <cstdio>
+#include <limits>
+
+using namespace std;
+
+int main(void) {
+    cout << "Short:          " << std::numeric_limits<short>::min() << " to " << std::numeric_limits<short>::max() << endl;
+    cout << "Unsigned Short: " << std::numeric_limits<unsigned short>::min() << " to " << std::numeric_limits<unsigned short>::max() << endl;
+    cout << "Signed Short:   " << std::numeric_limits<signed short>::min() << " to " << std::numeric_limits<signed short>::max() << endl;
+    cout << "main(void)" << endl;
+    DateTime epoch = DateTime();
+    cout << epoch.toString() << endl;
+    epoch.add(1, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(1000, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(60000, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(3600000, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(86400000, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(-2, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(-1000, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(-60000, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+    epoch.add(-3600000, DateTime::Millisecond);
+    cout << epoch.toString() << endl;
+
+    cout << "sizeof(DateTime) " << sizeof(epoch) << endl;
+    return 0;
+}
+
+
+/*
 #ifndef ARDUINO
 #include <iostream>
 #include <cstdio>
 #endif
 
 #include "DateTime.h"
+
+// TODO Test modAddSub16
+// TODO Test milliseconds
 
 using namespace std;
 
@@ -32,16 +74,15 @@ int fails = 0;
 //	}
 //}
 
-/**
- * \brief Testing function for DateTime::modAddSub
- *
- * \param value data type must be native to the function under test.
- * \param addend data type must be native to the function under test.
- * \param modulo data type must be native to the function under test.
- * \param expectedValue data type must be the same as value.
- * \param expectedCarry data type must be large enough to accept any expected value without wraparound.
- * \param shouldSucceed inicates if the expectedValue and expectedCarry should be tested.
- */
+//
+// * \brief Testing function for DateTime::modAddSub
+// *
+// * \param value data type must be native to the function under test.
+// * \param addend data type must be native to the function under test.
+// * \param modulo data type must be native to the function under test.
+// * \param expectedValue data type must be the same as value.
+// * \param expectedCarry data type must be large enough to accept any expected value without wraparound.
+// * \param shouldSucceed inicates if the expectedValue and expectedCarry should be tested.
 void testModAddSub8(uint8_t value,
                    int16_t addend,
                    uint8_t modulo,
@@ -142,7 +183,7 @@ int main() {
 
 	return 0;
 }
-
+*/
 //int tests = 0;
 //int fails = 0;
 //
