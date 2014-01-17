@@ -16,10 +16,17 @@ private:
     short millisecond, second, minute, hour, day, month, year;
 	static char line[24];
 	static int add(short& addendMinuend, int addendSubtrahend, short rangeModulo);
+	static short daysInMonth(short month, short year);
+	static bool isLeapYear(short year);
+	void addDay(int value);
+	int addMonth(int value);
+	int addYear(int value);
+	int adjust();
 protected:
 public:
     enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
     DateTime();
+    DateTime(short year, short month, short day, short hour, short minute, short second, short millisecond);
     short getMillisecond() { return millisecond; }
     short getSecond() { return second; }
     short getMinute() { return minute; }
@@ -28,7 +35,7 @@ public:
     short getMonth() { return month; }
     short getYear() { return year; }
 	char* toString();
-	void add(int value, Period period);
+	short adjust(int value, Period period);
 };
 
 #endif // DATETIME_H

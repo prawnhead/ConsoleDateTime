@@ -7,13 +7,23 @@
 char DateTime::line[24] = "";
 
 DateTime::DateTime() {
-	year = 0;
-	month = 0;
-	day = 0;
+	year = 1;
+	month = 1;
+	day = 1;
 	hour = 0;
 	minute = 0;
 	second = 0;
 	millisecond = 0;
+}
+
+DateTime::DateTime(short year, short month, short day, short hour, short minute, short second, short millisecond) {
+    this->year = year;
+    this->month = month;
+    this->day = day;
+    this->hour = hour;
+    this->minute = minute;
+    this->second = second;
+    this->millisecond = millisecond;
 }
 
 char* DateTime::toString() {
@@ -22,8 +32,6 @@ char* DateTime::toString() {
 }
 
 int DateTime::add(short& addendMinuend, int addendSubtrahend, short rangeModulo) {
-
-    if (addendSubtrahend == 0) return 0;
 
     int intermediate = addendMinuend + addendSubtrahend;
         // addendMinuend can only be positive.
@@ -47,23 +55,129 @@ int DateTime::add(short& addendMinuend, int addendSubtrahend, short rangeModulo)
     return carry;
 }
 
-void DateTime::add(int value, Period period) {
+short DateTime::adjust(int value, Period period) {
+
+    int daysAdjusted = 0;
+    if (value == 0)
+        return daysAdjusted;
+
     switch (period) {
     case Millisecond:
-        add(add(millisecond, value, mod_milliseconds), DateTime::Second);
+        adjust(add(millisecond, value, mod_milliseconds), DateTime::Second);
         break;
     case Second:
-        add(add(second, value, mod_seconds), DateTime::Minute);
+        adjust(add(second, value, mod_seconds), DateTime::Minute);
         break;
     case Minute:
-        add(add(minute, value, mod_minutes), DateTime::Hour);
+        adjust(add(minute, value, mod_minutes), DateTime::Hour);
         break;
     case Hour:
-        add(add(hour, value, mod_hours), DateTime::Day);
+        adjust(add(hour, value, mod_hours), DateTime::Day);
+        break;
+    case Day:
+        addDay(value);  // Does not roll-over to month
+        break;
+    case Month:
+        daysAdjusted = addMonth(value);    // Does not roll-over to year
+        break;
+    case Year:
+        daysAdjusted = addYear(value);
         break;
     default:
-        day += value;
+        return 0;
+        // Invalid. Do nothing.
     }
+
+    return daysAdjusted;
+}
+
+void DateTime::addDay(int value) {
+    printf("Adding %d days to %02d.\n", value, day);
+    printf("%d-%02d has %d days.\n", year, month, daysInMonth(month, year));
+    if (value > 0) {    // adding days
+        cout << "adding days ";
+        if (daysInMonth(month, year) >= value + day) {
+            cout << "without rollover";
+            day += value;   // month doesn't change
+        } else {
+            cout << "with rollover";
+        }
+    } else {            // subtracting days
+        cout << "subtracting days ";
+        if (-value < day) {
+            cout << "without rollover";
+            day += value;   // month doesn't change
+        } else {
+            cout << "with rollover";
+        }
+    }
+    cout << endl;
+}
+
+int DateTime::addMonth(int value) {
+    // returns days adjusted
+}
+
+int DateTime::addYear(int value) {
+    // returns days adjusted
+}
+
+int DateTime::adjust() {
+    short days = daysInMonth(month, year);
+    short adjust = 0;
+    if (day > days) {
+        adjust = days - day;
+        day = days;
+    }
+    return adjust;
+}
+
+short DateTime::daysInMonth(short month, short year) {
+// http://en.wikipedia.org/wiki/Month
+	switch (month) {
+	case 1:
+		return 31;
+		break;
+	case 2:
+		return DateTime::isLeapYear(year) ? 29 : 28;
+		break;
+	case 3:
+		return 31;
+		break;
+	case 4:
+		return 30;
+		break;
+	case 5:
+		return 31;
+		break;
+	case 6:
+		return 30;
+		break;
+	case 7:
+		return 31;
+		break;
+	case 8:
+		return 31;
+		break;
+	case 9:
+		return 30;
+		break;
+	case 10:
+		return 31;
+		break;
+	case 11:
+		return 30;
+		break;
+	case 12:
+		return 31;
+		break;
+	}
+	return 0;
+}
+
+bool DateTime::isLeapYear(short year) {
+	//http://en.wikipedia.org/wiki/Leap_year
+	return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
 }
 
 /*

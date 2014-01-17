@@ -6,32 +6,36 @@
 using namespace std;
 
 int main(void) {
-    cout << "Short:          " << std::numeric_limits<short>::min() << " to " << std::numeric_limits<short>::max() << endl;
-    cout << "Unsigned Short: " << std::numeric_limits<unsigned short>::min() << " to " << std::numeric_limits<unsigned short>::max() << endl;
-    cout << "Signed Short:   " << std::numeric_limits<signed short>::min() << " to " << std::numeric_limits<signed short>::max() << endl;
-    cout << "main(void)" << endl;
-    DateTime epoch = DateTime();
-    cout << epoch.toString() << endl;
-    epoch.add(1, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(1000, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(60000, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(3600000, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(86400000, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(-2, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(-1000, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(-60000, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-    epoch.add(-3600000, DateTime::Millisecond);
-    cout << epoch.toString() << endl;
-
-    cout << "sizeof(DateTime) " << sizeof(epoch) << endl;
+    DateTime now = DateTime(2000, 2, 28, 23, 59, 59, 999);
+    cout << now.toString() << endl;
+    now.adjust(1, DateTime::Millisecond);
+    cout << now.toString() << endl;
+//    cout << "Short:          " << std::numeric_limits<short>::min() << " to " << std::numeric_limits<short>::max() << endl;
+//    cout << "Unsigned Short: " << std::numeric_limits<unsigned short>::min() << " to " << std::numeric_limits<unsigned short>::max() << endl;
+//    cout << "Signed Short:   " << std::numeric_limits<signed short>::min() << " to " << std::numeric_limits<signed short>::max() << endl;
+//    cout << "main(void)" << endl;
+//    DateTime epoch = DateTime();
+//    cout << epoch.toString() << endl;
+//    epoch.add(1, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(1000, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(60000, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(3600000, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(86400000, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(-2, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(-1000, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(-60000, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//    epoch.add(-3600000, DateTime::Millisecond);
+//    cout << epoch.toString() << endl;
+//
+//    cout << "sizeof(DateTime) " << sizeof(epoch) << endl;
     return 0;
 }
 
