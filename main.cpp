@@ -1,10 +1,176 @@
-#include "DateTime.h"
-#include <iostream>
-//#include <cstdio>
+//#include "DateTime.h"
+#include "Date.h"
+//#include <iostream>
+#include <stdio.h>
 #include <limits>
+
+
+/*  TESTING:
+    Can't use ctime for testing. Has limited range.
+    Can use: http://www.timeanddate.com/calendar/?year=1&country=29
+ */
 
 using namespace std;
 
+bool testLeapYear(Date date);
+bool isLeapYear(short year);
+short daysInMonth(short month, short year);
+
+int main(void) {
+
+    Date now;
+
+    // Rule 01: Date defaults to year 0001
+    if (now.getYear() != 1) {
+        printf("Rule 01 FAILED.\n");
+        return 0;
+    }
+    printf("Rule 01 Passed.\n");
+
+    // Rule 02: Year range is 0001 to 9999
+    for (int i = 1; i < 10000; i++) {
+        if (now.getYear() != i) {
+            printf("Rule 02 FAILED.\n");
+            printf("%04d\t%04d\n", now.getYear(), i);
+            return 0;
+        }
+        now.increment(Date::Year);
+    }
+    printf("Rule 02 Passed.\n");
+
+    // Rule 03: Year 0001 - 1 = 9999
+    now.decrement(Date::Year);
+    if (now.getYear() != 9999) {
+        printf("Rule 03 FAILED.\n");
+        return 0;
+    }
+    printf("Rule 03 Passed.\n");
+
+    // Rule 04: Year 9999 + 1 = 0001
+    now.increment(Date::Year);
+    if (now.getYear() != 1) {
+        printf("Rule 04 FAILED.\n");
+        return 0;
+    }
+    printf("Rule 04 Passed.\n");
+
+    // Rule 05: Test leap years.
+    for (int i = 1; i < 10000; i++) {
+        if (!testLeapYear(now)) {
+            printf("Rule 05 FAILED.\n");
+            printf("%04d", now.getYear());
+            return 0;
+        }
+        now.increment(Date::Year);
+    }
+    printf("Rule 05 Passed.\n");
+
+    // Rule 06: Correct days in month (non-leap year)
+    Date nonLeap = Date(1, 1, 1);
+    for (int i = 1; i < 13; i++) {
+        if (nonLeap.daysInMonth() != daysInMonth(nonLeap.getMonth(), nonLeap.getYear())) {
+            printf("Rule 06 FAILED.\n");
+            printf("%02d Date days: %d. Test days: %d.", nonLeap.getMonth(), nonLeap.daysInMonth(), daysInMonth(nonLeap.getMonth(), nonLeap.getYear()));
+            return 0;
+        }
+        nonLeap.increment(Date::Month);
+    }
+    printf("Rule 06 Passed.\n");
+
+    // Rule 07: Correct days in month (leap year)
+    Date leap = Date(1, 1, 2000);
+    for (int i = 1; i < 13; i++) {
+        if (leap.daysInMonth() != daysInMonth(leap.getMonth(), leap.getYear())) {
+            printf("Rule 07 FAILED.\n");
+            printf("%02d Date days: %d. Test days: %d.", leap.getMonth(), leap.daysInMonth(), daysInMonth(leap.getMonth(), leap.getYear()));
+            return 0;
+        }
+        leap.increment(Date::Month);
+    }
+    printf("Rule 07 Passed.\n");
+
+    // Rule 08: 28th Feb + 1 day = 1st Mar (non leap year)
+    Date rule08 = Date(28, 2, 1999);
+    rule08.increment(Date::Day);
+    if (rule08.getMonth() != 3 || rule08.getDay() != 1) {
+        printf("Rule 08 FAILED.\n");
+        printf("%s\n", rule08.toString());
+        return 0;
+    }
+    printf("Rule 08 Passed.\n");
+
+    // Rule 09: 28th Feb + 1 day = 29th Feb (leap year)
+    Date rule09 = Date(28, 2, 2000);
+    rule09.increment(Date::Day);
+    if (rule09.getMonth() != 2 || rule09.getDay() != 29) {
+        printf("Rule 09 FAILED.\n");
+        printf("%s\n", rule09.toString());
+        return 0;
+    }
+    printf("Rule 09 Passed.\n");
+
+    // Rule 10: 01/01/0001 + 1 year = 01/01/0002
+    Date rule10 = Date(1, 1, 1);
+    short correction = rule10.adjust(Date::Year, 1);
+    if (rule10.getDay() != 1 || rule10.getMonth() != 1 || rule10.getYear() != 2 || correction != 0) {
+        printf("Rule 10 FAILED.\n");
+        printf("%s\n", rule10.toString());
+        return 0;
+    }
+    printf("Rule 10 Passed.\n");
+
+    // Rule 11: 29/02/0004 + 1 year = 28/02/0005 (with adjust 1)
+    Date rule11 = Date(29, 2, 4);
+    correction = rule11.adjust(Date::Year, 1);
+    if (rule11.getDay() != 28 || rule11.getMonth() != 2 || rule11.getYear() != 5 || correction != 1) {
+        printf("Rule 11 FAILED.\n");
+        printf("%s\n", rule11.toString());
+        return 0;
+    }
+    printf("Rule 11 Passed.\n");
+
+    // Rule 12: 31/12/9998 + 1 year = 31/12/9999
+    Date rule12 = Date(31, 12, 9998);
+    correction = rule12.adjust(Date::Year, 1);
+    if (rule12.getDay() != 31 || rule12.getMonth() != 12 || rule12.getYear() != 9999 || correction != 0) {
+        printf("Rule 12 FAILED.\n");
+        printf("%s\n", rule12.toString());
+        return 0;
+    }
+    printf("Rule 12 Passed.\n");
+
+
+    return 0;
+}
+
+bool testLeapYear(Date date) {
+    bool dateLeap = date.isLeapYear();
+    bool testLeap = isLeapYear(date.getYear());
+    return dateLeap && testLeap || !dateLeap && !testLeap;
+}
+
+bool isLeapYear(short year) {
+
+    short nonLeapYears[] = { 100, 200, 300, 500, 600, 700, 900, 1000, 1100, 1300, 1400, 1500, 1700, 1800, 1900, 2100, 2200, 2300, 2500, 2600, 2700, 2900, 3000, 3100, 3300, 3400, 3500, 3700, 3800, 3900, 4100, 4200, 4300, 4500, 4600, 4700, 4900, 5000, 5100, 5300, 5400, 5500, 5700, 5800, 5900, 6100, 6200, 6300, 6500, 6600, 6700, 6900, 7000, 7100, 7300, 7400, 7500, 7700, 7800, 7900, 8100, 8200, 8300, 8500, 8600, 8700, 8900, 9000, 9100, 9300, 9400, 9500, 9700, 9800, 9900 };
+    if (year % 4 != 0) return false;
+    short index = 0;
+    while (nonLeapYears[index] <= year) {
+        if (nonLeapYears[index] == year) return false;
+        index++;
+    }
+    return true;
+
+}
+
+short daysInMonth(short month, short year) {
+    //               X   J   F   M   A   M   J   J   A   S   O   N   D
+    short days[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    if (month == 2)
+        return isLeapYear(year) ? 29 : 28;
+    else
+        return days[month];
+}
+/*
 int main(void) {
     DateTime now = DateTime(2000, 2, 28, 23, 59, 59, 999);
     cout << now.toString() << endl;
@@ -38,7 +204,7 @@ int main(void) {
 //    cout << "sizeof(DateTime) " << sizeof(epoch) << endl;
     return 0;
 }
-
+*/
 
 /*
 #ifndef ARDUINO
@@ -182,7 +348,7 @@ int main() {
         cout << "  *    *******  * *        " << endl;
         cout << "  *   *       * * *****  **" << endl;
         cout << endl;
-        printf("Failed %d of %d tests. %.2f%% pass rate.\n\n", fails, tests, 100.0*(tests-fails)/tests);
+        printf("FAILED %d of %d tests. %.2f%% pass rate.\n\n", fails, tests, 100.0*(tests-fails)/tests);
 	}
 
 	return 0;

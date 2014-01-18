@@ -34,8 +34,10 @@
 			<Add directory="include" />
 			<Add directory="src" />
 		</Compiler>
+		<Unit filename="include/Date.h" />
 		<Unit filename="include/DateTime.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/Date.cpp" />
 		<Unit filename="src/DateTime.cpp" />
 		<Extensions>
 			<code_completion />
