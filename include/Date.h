@@ -3,8 +3,48 @@
 
 #include <stdio.h>
 
+
+/**
+ * @file    Date.h
+ * @author  Chris Murphy <prawnhead@gmail.com>
+ * @version 1.0
+ *
+ * @section LICENSE
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details at
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @section DESCRIPTION
+ *
+ * The Date class implements a Gregorian calendar. Please note that
+ * while this calendar has been implemented for the year range 0001
+ * to 9999 the Gregorian calendar was not invented, nor implemented
+ * in earlier years and will possibly not apply into the future as
+ * far as the year 9999. It is, however, accurate and useful for
+ * the 21st century and a few centuries either side of it.
+ */
+
 class Date
 {
+
+public:
+
+protected:
+
+private:
+
+//  /\ Untested
+// ==========================================================================
+//  \/ Tested
+
 private:
 
     // Constants
@@ -56,16 +96,6 @@ public:
     static short daysInMonth(short month, short year);
     static short moduloArithBaseZero(short& value, short addend, short modulo);
     static short moduloArithBaseOne(short& value, short addend, short modulo);
-
-//  /\ Tested
-// ==========================================================================
-//  \/ Untested
-
-public:
-
-protected:
-
-private:
 
 };
 

@@ -5,11 +5,6 @@
 #include <limits>
 
 
-/*  TESTING:
-    Can't use ctime for testing. Has limited range.
-    Can use: http://www.timeanddate.com/calendar/?year=1&country=29
- */
-
 using namespace std;
 
 bool testLeapYear(Date date);
