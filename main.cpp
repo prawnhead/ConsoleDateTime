@@ -15,11 +15,386 @@ using namespace std;
 bool testLeapYear(Date date);
 bool isLeapYear(short year);
 short daysInMonth(short month, short year);
+bool isMatchedString(char* one, char* two);
+void testModuloArithBaseZero(short value,
+                             short addend,
+                             short modulo,
+                             short expectedValue,
+                             short expectedCarry,
+                             bool shouldSucceed);
+void testModuloArithBaseOne(short value,
+                            short addend,
+                            short modulo,
+                            short expectedValue,
+                            short expectedCarry,
+                            bool shouldSucceed);
+
+int tests = 0;
+int fails = 0;
 
 int main(void) {
 
-    Date now;
+    // Testing for Date class
+    if (Date::Year != 0 || Date::Month != 1 || Date::Day != 2) {
+        printf("FAIL: enum Period {}\n");
+        return 0;
+    }
+    tests++;
+    printf("OK: enum Period\n");
 
+    // Testing for default constructor and getters getYear, getMonth and getDay
+    Date defaultConstructor;
+    if (defaultConstructor.getYear() != 1 ||
+        defaultConstructor.getMonth() != 1 ||
+        defaultConstructor.getDay() != 1) {
+        printf("FAIL: Date::Date()\n");
+        return 0;
+    }
+    tests++;
+    printf("OK: Date::Date()\n");
+    printf("OK: Date::getYear()\n");
+    printf("OK: Date::getMonth()\n");
+    printf("OK: Date::getDay()\n");
+
+    // Testing for constructor
+    Date argumentsConstructor(2014, 1, 18);
+    if (argumentsConstructor.getYear() != 2014 ||
+        argumentsConstructor.getMonth() != 1 ||
+        argumentsConstructor.getDay() != 18) {
+        printf("FAIL: Date::Date(short year, short month, short day)\n");
+        return 0;
+    }
+    tests++;
+    printf("OK: Date::Date(short year, short month, short day)\n");
+
+    // Testing for toString()
+    char wantedDefaultString[] = "0001-01-01";
+    if (!isMatchedString(defaultConstructor.toString(), wantedDefaultString)) {
+        printf("FAIL: Date::toString()\n");
+        return 0;
+    }
+    tests++;
+    char wantedArgumentsString[] = "2014-01-18";
+    if (!isMatchedString(argumentsConstructor.toString(), wantedArgumentsString)) {
+        printf("FAIL: Date::toString()\n");
+        return 0;
+    }
+    tests++;
+    printf("OK: Date::toString()\n");
+
+    // Testing for isEqual (successful)
+    Date isEqual = Date(24, 8, 1972);
+    if (!isEqual.isEqual(new Date(24, 8, 1972))) {
+        printf("FAIL: Date::isEqual(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    // Testing for isEqual (failing, wrong day)
+    Date isNotEqualDay = Date(24, 8, 1972);
+    if (isNotEqualDay.isEqual(new Date(25, 8, 1972))) {
+        printf("FAIL: Date::isEqual(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    // Testing for isEqual (failing, wrong month)
+    Date isNotEqualMonth = Date(24, 8, 1972);
+    if (isNotEqualMonth.isEqual(new Date(24, 9, 1972))) {
+        printf("FAIL: Date::isEqual(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    // Testing for isEqual (failing, wrong year)
+    Date isNotEqualYear = Date(24, 8, 1972);
+    if (isNotEqualYear.isEqual(new Date(24, 8, 1971))) {
+        printf("FAIL: Date::isEqual(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    printf("OK: Date::isEqual(Date* other)\n");
+    printf("OK: Date::isEqual(Date other)\n");
+
+    // Testing for isBefore (successful, year)
+    Date isBeforeYear = Date(24, 8, 1972);
+    if (!isBeforeYear.isBefore(new Date(24, 8, 1973))) {
+        printf("FAIL: Date::isBefore(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    // Testing for isBefore (successful, month)
+    Date isBeforeMonth = Date(24, 8, 1972);
+    if (!isBeforeMonth.isBefore(new Date(23, 9, 1972))) {
+        printf("FAIL: Date::isBefore(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    // Testing for isBefore (successful, day)
+    Date isBeforeDay = Date(24, 8, 1972);
+    if (!isBeforeDay.isBefore(new Date(25, 8, 1972))) {
+        printf("FAIL: Date::isBefore(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    // Testing for isBefore (failing)
+    Date isNotBefore = Date(24, 8, 1972);
+    if (isNotBefore.isBefore(new Date(23, 8, 1972))) {
+        printf("FAIL: Date::isBefore(Date* other)\n");
+        return 0;
+    }
+    tests++;
+    printf("OK: Date::isBefore(Date* other)\n");
+    printf("OK: Date::isBefore(Date other)\n");
+
+    // Testing for isLeapYear
+    for (int i = 1; i < 10000; i++) {
+        Date isLeap = Date(i, 1, 1);
+        if (!testLeapYear(isLeap)) {
+            printf("FAIL: Date::isLeap(%d)\n", isLeap.getYear());
+            return 0;
+        }
+        tests++;
+    }
+    printf("OK: Date::isLeap()\n");
+    printf("OK: Date::isLeap(short year)\n");
+
+    // Testing for daysInMonth (non-leap year)
+    for (int i = 1; i < 13; i++) {
+        Date nonLeap = Date(1, i, 1);
+        if (nonLeap.daysInMonth() != daysInMonth(nonLeap.getMonth(), nonLeap.getYear())) {
+            printf("FAIL: Date::daysInMonth(%d)\n", nonLeap.getMonth());
+            return 0;
+        }
+        tests++;
+    }
+
+    // Testing for daysInMonth (leap year)
+    for (int i = 1; i < 13; i++) {
+        Date leap = Date(1, i, 2000);
+        if (leap.daysInMonth() != daysInMonth(leap.getMonth(), leap.getYear())) {
+            printf("FAIL: Date::daysInMonth(%d)\n", leap.getMonth());
+            return 0;
+        }
+        tests++;
+    }
+    printf("OK: Date::daysInMonth()\n");
+    printf("OK: Date::daysInMonth(short month, short year)\n");
+
+    // Testing for moduloArithBaseZero
+    // Test case 1: (not run)
+    // Anything mod 0 is a divide-by-zero error
+    // testModuloArithBaseZero(0, 0, 0, 0, 0, true);
+    //                               ^
+    // Test case 2: Add to sum 0
+    // (0 + 0) % 1 = 0 carry 0
+    testModuloArithBaseZero(0, 0, 1, 0, 0, true);
+
+    // Test case 3: Add to sum 1
+    // (0 + 1) % 1 = 0 carry 1
+    testModuloArithBaseZero(0, 1, 1, 0, 1, true);
+
+    // Test case 4: Add so that sum is 1 less than modulus
+    // (58 + 1) % 60 = 59 carry 0
+    testModuloArithBaseZero(58, 1, 60, 59, 0, true);
+
+    // Test case 5: Add so that sum equals modulus
+    // (11 + 49) % 60 = 0 carry 1
+    testModuloArithBaseZero(11, 49, 60, 0, 1, true);
+
+    // Test case 6: Add so that sum is 1 more than modulus
+    // (43 + 18) % 60 = 1 carry 1
+    testModuloArithBaseZero(43, 18, 60, 1, 1, true);
+
+    // Test case 7: Add to 1 less than 'intermediate' rollover
+    // (0 + 32767) % 60 = 7 carry 546
+    testModuloArithBaseZero(0, 32767, 60, 7, 546, true);
+
+    // Test case 8: Add to 'intermedate' rollover (rollover fail)
+    // (1 + 32767) % 60 = 8 carry 546 (OVERFLOW)
+    testModuloArithBaseZero(1, 32767, 60, 8, 546, false);
+
+    // Test case 9: Add to 1 more than 'intermediate' rollover (rollover fail)
+    // (2 + 32767) % 60 = 9 carry 546 (OVERFLOW)
+    testModuloArithBaseZero(2, 32767, 60, 9, 546, false);
+
+    // Test case 10: addendMinuend exceeds rangeModulo
+    // (100 + 0) % 60 = 40 carry 1
+    testModuloArithBaseZero(100, 0, 60, 40, 1, true);
+
+    // Test case 11: Add to sum -1
+    // (0 + -1) % 60 = 59 carry -1
+    testModuloArithBaseZero(0, -1, 60, 59, -1, true);
+
+    // Test case 12: Return maximum negative carry
+    // (0 + -32768) % 1 = 0 carry -32786
+    testModuloArithBaseZero(0, -32768, 1, 0, -32768, true);
+
+    printf("OK: Date::moduloArithBaseZero()\n");
+
+    // Testing for moduloArithBaseOne
+    // Test case 1: (not run)
+    // Anything mod 0 is a divide-by-zero error
+    // testModuloArithBaseOne(0, 0, 0, 0, 0, true);
+    //                               ^
+    // Test case 2: Add to sum 0. Value = 0 causes underflow.
+    // (0 + 0) % 1 = 0 carry 0
+    testModuloArithBaseOne(0, 0, 1, 0, 0, false);
+
+    // Test case 3: Add to sum 1.
+    // (1 + 0) % 1 = 1 carry 0
+    testModuloArithBaseOne(1, 0, 1, 1, 0, true);
+
+    // Test case 4: Add so that sum is 1 less than modulus
+    // (58 + 1) % 60 = 59 carry 0
+    testModuloArithBaseOne(58, 1, 60, 59, 0, true);
+
+    // Test case 5: Add so that sum equals modulus
+    // (11 + 49) % 60 = 60 carry 0
+    testModuloArithBaseOne(11, 49, 60, 60, 0, true);
+
+    // Test case 6: Add so that sum is 1 more than modulus
+    // (43 + 18) % 60 = 1 carry 1
+    testModuloArithBaseOne(43, 18, 60, 1, 1, true);
+
+    // Test case 7: Add to 1 less than 'intermediate' rollover
+    // (1 + 32767) % 60 = 7 carry 546
+    testModuloArithBaseOne(1, 32767, 60, 8, 546, true);
+
+    // Test case 8: Add to 'intermedate' rollover (rollover fail)
+    // (2 + 32767) % 60 = 9 carry 546 (OVERFLOW)
+    testModuloArithBaseOne(2, 32767, 60, 9, 546, false);
+
+    // Test case 9: Add to 1 more than 'intermediate' rollover (rollover fail)
+    // (3 + 32767) % 60 = 10 carry 546 (OVERFLOW)
+    testModuloArithBaseOne(3, 32767, 60, 10, 546, false);
+
+    // Test case 10: addend exceeds modulo
+    // (100 + 0) % 60 = 40 carry 1
+    testModuloArithBaseOne(100, 0, 60, 40, 1, true);
+
+    // Test case 11: Add to sum -1
+    // (1 + -2) % 60 = 59 carry -1
+    testModuloArithBaseOne(1, -2, 60, 59, -1, true);
+
+    // Test case 12: Return maximum negative carry
+    // (1 + -32768) % 1 = 1 carry -32786
+    testModuloArithBaseOne(1, -32768, 1, 1, -32768, true);
+    printf("OK: Date::moduloArithBaseOne()\n");
+
+    // Testing for correct()
+    // Non leap year maximum February adjustment
+    Date correct1 = Date(1999, 2, 31);
+    short adjustment = correct1.correct();
+    if (adjustment != 3 || !correct1.isEqual(new Date(1999, 2, 28))) {
+        printf("FAIL: Date::correct(%s)\n", correct1.toString());
+        return 0;
+    }
+    // Leap year minimum February adjustment
+    Date correct2 = Date(2000, 2, 30);
+    adjustment = correct2.correct();
+    if (adjustment != 1 || !correct2.isEqual(new Date(2000, 2, 29))) {
+        printf("FAIL: Date::correct(%s)\n", correct2.toString());
+        return 0;
+    }
+    printf("OK: Date::correct()\n");
+
+    // Testing for increment(Period period)
+    Date increment = Date(2000, 2, 29);
+    adjustment = increment.increment(Date::Year);
+    if (!increment.isEqual(new Date(2001, 2, 28)) || adjustment != 1) {
+        printf("FAIL: Date::increment(Period::Year)\n");
+        return 0;
+    }
+    adjustment = increment.increment(Date::Month);
+    if (!increment.isEqual(new Date(2001, 3, 28)) || adjustment != 0) {
+        printf("FAIL: Date::increment(Period::Month)\n");
+        return 0;
+    }
+    adjustment = increment.increment(Date::Day);
+    if (!increment.isEqual(new Date(2001, 3, 29)) || adjustment != 0) {
+        printf("FAIL: Date::increment(Period::Day)\n");
+        return 0;
+    }
+    printf("OK: Date::increment(Period period)\n");
+
+    // Testing for decrement(Period period)
+    Date decrement = Date(2001, 3, 31);
+    adjustment = decrement.decrement(Date::Year);
+    if (!decrement.isEqual(new Date(2000, 3, 31)) || adjustment != 0) {
+        printf("FAIL: Date::decrement(Period::Year)\n");
+        return 0;
+    }
+    adjustment = decrement.decrement(Date::Month);
+    if (!decrement.isEqual(new Date(2000, 2, 29)) || adjustment != 2) {
+        printf("FAIL: Date::decrement(Period::Month)\n");
+        return 0;
+    }
+    adjustment = decrement.decrement(Date::Day);
+    if (!decrement.isEqual(new Date(2000, 2, 28)) || adjustment != 0) {
+        printf("FAIL: Date::decrement(Period::Day)\n");
+        return 0;
+    }
+    printf("OK: Date::decrement(Period period)\n");
+
+    // Testing for adjust(Period period, int value)
+    Date adjust = Date(1937, 12, 27);
+    adjustment = adjust.adjust(Date::Year, 1);
+    if (!adjust.isEqual(new Date(1938, 12, 27)) || adjustment != 0) {
+        printf("FAIL: Date::adjust(Period::Year, 1)\n");
+        return 0;
+    }
+    adjustment = adjust.adjust(Date::Day, 4);
+    if (!adjust.isEqual(new Date(1938, 12, 31)) || adjustment != 0) {
+        printf("FAIL: Date::adjust(Period::Day, 4)\n");
+        return 0;
+    }
+    adjustment = adjust.adjust(Date::Month, 2);
+    if (!adjust.isEqual(new Date(1939, 2, 28)) || adjustment != 3) {
+        printf("FAIL: Date::adjust(Period::Month, 2) Result: %s (adjust: %d)\n",
+               adjust.toString(), adjustment);
+        return 0;
+    }
+    adjustment = adjust.adjust(Date::Year, 6000);
+    if (!adjust.isEqual(new Date(7939, 2, 28)) || adjustment != 0) {
+        printf("FAIL: Date::adjust(Period::Year, 6000) Result: %s (adjust: %d)\n",
+               adjust.toString(), adjustment);
+        return 0;
+    }
+    adjustment = adjust.adjust(Date::Year, -5919);
+    if (!adjust.isEqual(new Date(2020, 2, 28)) || adjustment != 0) {
+        printf("FAIL: Date::adjust(Period::Year, -5920) Result: %s (adjust: %d)\n",
+               adjust.toString(), adjustment);
+        return 0;
+    }
+    // http://www.timeanddate.com/date/dateadded.html?d1=28&m1=2&y1=2020&type=add&ay=&am=&aw=&ad=1000
+    adjustment = adjust.adjust(Date::Day, 1000);
+    if (!adjust.isEqual(new Date(2022, 11, 24)) || adjustment != 0) {
+        printf("FAIL: Date::adjust(Period::Day, 1000) Result: %s (adjust: %d)\n",
+               adjust.toString(), adjustment);
+        return 0;
+    }
+    // http://www.timeanddate.com/date/dateadded.html?d1=24&m1=11&y1=2022&type=sub&ay=&am=&aw=&ad=10000
+    adjustment = adjust.adjust(Date::Day, -10000);
+    if (!adjust.isEqual(new Date(1995, 7, 9)) || adjustment != 0) {
+        printf("FAIL: Date::adjust(Period::Day, 1000) Result: %s (adjust: %d)\n",
+               adjust.toString(), adjustment);
+        return 0;
+    }
+    adjustment = adjust.adjust(Date::Day, 22);
+    if (!adjust.isEqual(new Date(1995, 7, 31)) || adjustment != 0) {
+        printf("FAIL: Date::adjust(Period::Day, 22) Result: %s (adjust: %d)\n",
+               adjust.toString(), adjustment);
+        return 0;
+    }
+    adjustment = adjust.adjust(Date::Month, -29);
+    if (!adjust.isEqual(new Date(1993, 2, 28)) || adjustment != 3) {
+        printf("FAIL: Date::adjust(Period::Month, -29) Result: %s (adjust: %d)\n",
+               adjust.toString(), adjustment);
+        return 0;
+    }
+    printf("OK: Date::adjust(Period period, int value)\n");
+
+
+
+/*
     // Rule 01: Date defaults to year 0001
     if (now.getYear() != 1) {
         printf("Rule 01 FAILED.\n");
@@ -64,30 +439,6 @@ int main(void) {
         now.increment(Date::Year);
     }
     printf("Rule 05 Passed.\n");
-
-    // Rule 06: Correct days in month (non-leap year)
-    Date nonLeap = Date(1, 1, 1);
-    for (int i = 1; i < 13; i++) {
-        if (nonLeap.daysInMonth() != daysInMonth(nonLeap.getMonth(), nonLeap.getYear())) {
-            printf("Rule 06 FAILED.\n");
-            printf("%02d Date days: %d. Test days: %d.", nonLeap.getMonth(), nonLeap.daysInMonth(), daysInMonth(nonLeap.getMonth(), nonLeap.getYear()));
-            return 0;
-        }
-        nonLeap.increment(Date::Month);
-    }
-    printf("Rule 06 Passed.\n");
-
-    // Rule 07: Correct days in month (leap year)
-    Date leap = Date(1, 1, 2000);
-    for (int i = 1; i < 13; i++) {
-        if (leap.daysInMonth() != daysInMonth(leap.getMonth(), leap.getYear())) {
-            printf("Rule 07 FAILED.\n");
-            printf("%02d Date days: %d. Test days: %d.", leap.getMonth(), leap.daysInMonth(), daysInMonth(leap.getMonth(), leap.getYear()));
-            return 0;
-        }
-        leap.increment(Date::Month);
-    }
-    printf("Rule 07 Passed.\n");
 
     // Rule 08: 28th Feb + 1 day = 1st Mar (non leap year)
     Date rule08 = Date(28, 2, 1999);
@@ -139,7 +490,8 @@ int main(void) {
     }
     printf("Rule 12 Passed.\n");
 
-
+*/
+    printf("%d tests completed.\n", tests);
     return 0;
 }
 
@@ -154,7 +506,7 @@ bool isLeapYear(short year) {
     short nonLeapYears[] = { 100, 200, 300, 500, 600, 700, 900, 1000, 1100, 1300, 1400, 1500, 1700, 1800, 1900, 2100, 2200, 2300, 2500, 2600, 2700, 2900, 3000, 3100, 3300, 3400, 3500, 3700, 3800, 3900, 4100, 4200, 4300, 4500, 4600, 4700, 4900, 5000, 5100, 5300, 5400, 5500, 5700, 5800, 5900, 6100, 6200, 6300, 6500, 6600, 6700, 6900, 7000, 7100, 7300, 7400, 7500, 7700, 7800, 7900, 8100, 8200, 8300, 8500, 8600, 8700, 8900, 9000, 9100, 9300, 9400, 9500, 9700, 9800, 9900 };
     if (year % 4 != 0) return false;
     short index = 0;
-    while (nonLeapYears[index] <= year) {
+    while (nonLeapYears[index] <= year && index < 75) {
         if (nonLeapYears[index] == year) return false;
         index++;
     }
@@ -170,6 +522,72 @@ short daysInMonth(short month, short year) {
     else
         return days[month];
 }
+
+bool isMatchedString(char* one, char* two) {
+    while(*one != '\0') {
+        if (*one++ != *two++)
+            return false;
+    }
+    if (*one == *two)
+        return true;
+    else
+        return false;
+}
+
+// * \brief Testing function for Date::moduloArithBaseZero
+// *
+// * \param value data type must be native to the function under test.
+// * \param addend data type must be native to the function under test.
+// * \param modulo data type must be native to the function under test.
+// * \param expectedValue data type must be the same as value.
+// * \param expectedCarry data type must be large enough to accept any expected value without wraparound.
+// * \param shouldSucceed inicates if the expectedValue and expectedCarry should be tested.
+void testModuloArithBaseZero(short value,
+                             short addend,
+                             short modulo,
+                             short expectedValue,
+                             short expectedCarry,
+                             bool shouldSucceed) {
+
+    short originalValue = value;
+    short carry = Date::moduloArithBaseZero(value, addend, modulo);
+    tests++;
+    if (shouldSucceed && (value != expectedValue || carry != expectedCarry)) {
+        fails++;
+		printf("FAIL: %d + %d %% %d. Got %d carry %d. Expected %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
+    } else if (!shouldSucceed && value == expectedValue && carry == expectedCarry) {
+        fails++;
+		printf("FAIL: %d + %d %%%d. Got %d carry %d. Expected failure but right answer was produced: %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
+    }
+}
+
+// * \brief Testing function for Date::moduloArithBaseOne
+// *
+// * \param value data type must be native to the function under test.
+// * \param addend data type must be native to the function under test.
+// * \param modulo data type must be native to the function under test.
+// * \param expectedValue data type must be the same as value.
+// * \param expectedCarry data type must be large enough to accept any expected value without wraparound.
+// * \param shouldSucceed inicates if the expectedValue and expectedCarry should be tested.
+void testModuloArithBaseOne(short value,
+                            short addend,
+                            short modulo,
+                            short expectedValue,
+                            short expectedCarry,
+                            bool shouldSucceed) {
+
+    short originalValue = value;
+    short carry = Date::moduloArithBaseOne(value, addend, modulo);
+    tests++;
+    if (shouldSucceed && (value != expectedValue || carry != expectedCarry)) {
+        fails++;
+		printf("FAIL: %d + %d %% %d. Got %d carry %d. Expected %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
+    } else if (!shouldSucceed && value == expectedValue && carry == expectedCarry) {
+        fails++;
+		printf("FAIL: %d + %d %%%d. Got %d carry %d. Expected failure but right answer was produced: %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
+    }
+}
+
 /*
 int main(void) {
     DateTime now = DateTime(2000, 2, 28, 23, 59, 59, 999);
@@ -245,32 +663,6 @@ int fails = 0;
 //}
 
 //
-// * \brief Testing function for DateTime::modAddSub
-// *
-// * \param value data type must be native to the function under test.
-// * \param addend data type must be native to the function under test.
-// * \param modulo data type must be native to the function under test.
-// * \param expectedValue data type must be the same as value.
-// * \param expectedCarry data type must be large enough to accept any expected value without wraparound.
-// * \param shouldSucceed inicates if the expectedValue and expectedCarry should be tested.
-void testModAddSub8(uint8_t value,
-                   int16_t addend,
-                   uint8_t modulo,
-                   uint8_t expectedValue,
-                   int32_t expectedCarry,
-                   bool shouldSucceed) {
-
-    uint8_t originalValue = value;
-    int16_t carry = DateTime::modAddSub8(value, addend, modulo);
-    tests++;
-    if (shouldSucceed && (value != expectedValue || carry != expectedCarry)) {
-        fails++;
-		printf("FAILED: %d + %d %% %d. Got %d carry %d. Expected %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
-    } else if (!shouldSucceed && value == expectedValue && carry == expectedCarry) {
-        fails++;
-		printf("FAILED: %d + %d %%%d. Got %d carry %d. Expected failure but right answer was produced: %d carry %d\n", originalValue, addend, modulo, value, carry, expectedValue, expectedCarry);
-    }
-}
 
 int main() {
 

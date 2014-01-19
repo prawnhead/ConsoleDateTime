@@ -5,50 +5,67 @@
 
 class Date
 {
-    public:
-        // Enumerations
-        enum Period { Year, Month, Day };
+private:
 
-        // Constructors & Destructor
-        Date();
-        Date(short day, short month, short year);
-        virtual ~Date();
+    // Constants
+    const short Min_Year = 1;
+    const short Max_Year = 9999;
+    const short Min_Month = 1;
+    const short Max_Month = 12;
+    const short Min_Day = 1;
+    const short Year_Modulus = 9999;
+    const short Month_Modulus = 12;
 
-        // Property Getters
-        short getDay();
-        short getMonth();
-        short getYear();
-        char* toString();
-        bool isLeapYear();
-        short daysInMonth();
+    // Properties
+    short year, month, day;
+    static char text[11];
 
-        // Mutators
-        void increment(Period period);
-        void decrement(Period period);
-        short adjust(Period period, int value);
-        short correct();
+protected:
 
-        // Functions
-        static bool isLeapYear(short year);
-        static short daysInMonth(short month, short year);
-        static int moduloArithBaseZero(short& value, int addend, short modulo);
-        static int moduloArithBaseOne(short& value, int addend, short modulo);
+public:
 
-    protected:
+    // Enumerations
+    enum Period { Year, Month, Day };
 
-    private:
+    // Constructors and destructor
+    Date();
+    Date(short year, short month, short day);
 
-        // Constants
-        const short Min_Year = 1;
-        const short Max_Year = 9999;
-        const short Min_Month = 1;
-        const short Max_Month = 12;
-        const short Min_Day = 1;
-        const short Year_Modulo = 9999;
+    // Property Getters
+    short getDay();
+    short getMonth();
+    short getYear();
+    char* toString();
+    bool isEqual(Date other);
+    bool isEqual(Date* other);
+    bool isBefore(Date other);
+    bool isBefore(Date* other);
+    bool isLeapYear();
+    short daysInMonth();
 
-        // Properties
-        short year, month, day;
-        static char text[11];
+    // Mutators
+    short correct();
+    short increment(Period period);
+    short decrement(Period period);
+    void incrementUnsafe(Period period);
+    void decrementUnsafe(Period period);
+    short adjust(Period period, int value);
+
+    // Functions
+    static bool isLeapYear(short year);
+    static short daysInMonth(short month, short year);
+    static short moduloArithBaseZero(short& value, short addend, short modulo);
+    static short moduloArithBaseOne(short& value, short addend, short modulo);
+
+//  /\ Tested
+// ==========================================================================
+//  \/ Untested
+
+public:
+
+protected:
+
+private:
 
 };
 
