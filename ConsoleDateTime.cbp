@@ -36,9 +36,11 @@
 		</Compiler>
 		<Unit filename="include/Date.h" />
 		<Unit filename="include/DateTime.h" />
+		<Unit filename="include/Time.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Date.cpp" />
 		<Unit filename="src/DateTime.cpp" />
+		<Unit filename="src/Time.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

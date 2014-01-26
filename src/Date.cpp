@@ -4,29 +4,28 @@ using namespace std;
 
 char Date::text[11] = "XXXX-XX-XX";
 
-Date::Date()
-{
+Date::Date() {
     year = 1;   // Year:    0001
     month = 1;  // Month:   January
     day = 1;    // Day:     1st
+    printf("sizeof(int) = %d\n", sizeof(int));
 }
 
-Date::Date(short year, short month, short day)
-{
+Date::Date(int year, int month, int day) {
     this->year = year;
     this->month = month;
     this->day = day;
 }
 
-short Date::getDay() {
+int Date::getDay() {
     return day;
 }
 
-short Date::getMonth() {
+int Date::getMonth() {
     return month;
 }
 
-short Date::getYear() {
+int Date::getYear() {
     return year;
 }
 
@@ -54,7 +53,7 @@ bool Date::isBefore(Date* other) {
     return isBefore(*other);
 }
 
-bool Date::isLeapYear(short year) {
+bool Date::isLeapYear(int year) {
     return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
 }
 
@@ -65,15 +64,15 @@ bool Date::isLeapYear() {
 void Date::incrementUnsafe(Period period) {
     switch (period) {
     case Year:
-        if (year == Max_Year)
-            year = Min_Year;
+        if (year == Year_Max)
+            year = Year_Min;
         else
             year++;
         break;
     case Month:
-        if (month == Max_Month) {
+        if (month == Month_Max) {
             increment(Date::Year);
-            month = Min_Month;
+            month = Month_Min;
         } else
             month++;
         break;
@@ -87,7 +86,7 @@ void Date::incrementUnsafe(Period period) {
     }
 }
 
-short Date::increment(Period period) {
+int Date::increment(Period period) {
     incrementUnsafe(period);
     if (period == Date::Day)
         return 0;
@@ -98,15 +97,15 @@ short Date::increment(Period period) {
 void Date::decrementUnsafe(Period period) {
     switch (period) {
     case Year:
-        if (year == Min_Year)
-            year = Max_Year;
+        if (year == Year_Min)
+            year = Year_Max;
         else
             year--;
         break;
     case Month:
-        if (month == Min_Month) {
+        if (month == Month_Min) {
             decrement(Date::Year);
-            month = Max_Month;
+            month = Month_Max;
         } else
             month--;
         break;
@@ -120,7 +119,7 @@ void Date::decrementUnsafe(Period period) {
     }
 }
 
-short Date::decrement(Period period) {
+int Date::decrement(Period period) {
     decrementUnsafe(period);
     if (period == Date::Day)
         return 0;
@@ -128,7 +127,7 @@ short Date::decrement(Period period) {
         return correct();
 }
 
-short Date::daysInMonth(short month, short year) {
+int Date::daysInMonth(int month, int year) {
     switch (month) {
         case 1: return 31;
         case 2: return Date::isLeapYear(year) ? 29 : 28;
@@ -146,52 +145,21 @@ short Date::daysInMonth(short month, short year) {
     return 0;   // error
 }
 
-short Date::daysInMonth() {
+int Date::daysInMonth() {
     return daysInMonth(month, year);
 }
 
-short Date::moduloArithBaseZero(short& value, short addend, short modulo) {
-    // Parameters - input
-    // value  - if valid, value is between zero and (modulo - 1)
-    //          Passed by reference and is an in/out parameter.
-    // addend - can be any value
-    // modulo - can be any value but large expected values are
-    //          1000 for milliseconds and 9999 for years.
-    // Parameter - output. Carry/borrow output from arithmetic operation.
-    short inter = value + addend;
-    // inter will over/underflow when (value + addend) exceeds short int limits.
-    // This will give incorrect results, but is a known limitation.
-    short carry = inter / modulo;
-    // carry cannot overflow but can cause divide-by-zero error if modulo = 0.
-    value = inter % modulo;
-    // value cannot overflow. Produces value in range -(modulo - 1) to (modulo - 1)
-    if (value < 0) {
-        carry--;
-        value += modulo;
-    }
-    // value now in the range zero to (modulo - 1)
-    return carry;
-}
-
-short Date::moduloArithBaseOne(short& value, short addend, short modulo) {
-    // Translates to/from zero based arithmetic.
-    value--;
-    short carry = moduloArithBaseZero(value, addend, modulo);
-    value++;
-    return carry;
-}
-
-short Date::adjust(Period period, int value) {
+int Date::adjust(Period period, int value) {
     if (value == 0) return 0;
-    short days = daysInMonth() - day;
+    int days = daysInMonth() - day;
     switch (period) {
     case Year:
         // Years will wrap-around with no carry/borrow.
-        moduloArithBaseOne(year, value, Year_Modulus);
+        DateTime::moduloArithBaseOne(year, value, Year_Modulus);
         return correct();
     case Month:
         // Months will carry/borrow years.
-        return adjust(Date::Year, moduloArithBaseOne(month, value, Month_Modulus));
+        return adjust(Date::Year, DateTime::moduloArithBaseOne(month, value, Month_Modulus));
     case Day:
         if (value > 0) {
             // Handle case where month is not incremented
@@ -236,9 +204,9 @@ short Date::adjust(Period period, int value) {
     }
 }
 
-short Date::correct() {
-    short days = daysInMonth();
-    short adjust = 0;
+int Date::correct() {
+    int days = daysInMonth();
+    int adjust = 0;
     if(day > days) {
         adjust = day - days; // want negative value
         day = days;

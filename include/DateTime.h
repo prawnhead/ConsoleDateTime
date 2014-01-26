@@ -1,23 +1,75 @@
+/**
+ * @file    DateTime.h
+ * @author  Chris Murphy <prawnhead@gmail.com>
+ * @version 1.0
+ *
+ * @section LICENSE
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details at
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @section DESCRIPTION
+ *
+ * The DateTime class represents an instant of time with
+ * millisecond resolution using the Gregorian calendar. This class
+ * utilises the Date and Time classes and also contains functions
+ * shared by the Date and Time classes.
+ */
+
 #ifndef DATETIME_H
 #define DATETIME_H
 
 #ifndef ARDUINO
 	#include <cstdio>
 	#include <iostream>
+    #define int short
 #endif
 
 class DateTime {
-private:
-	static const short mod_milliseconds = 1000;
-	static const short mod_seconds = 60;
-	static const short mod_minutes = 60;
-	static const short mod_hours = 24;
 
-    short millisecond, second, minute, hour, day, month, year;
+private:
+
+protected:
+
+public:
+
+//  /\ Untested
+// ==========================================================================
+//  \/ Tested
+
+private:
+
+protected:
+
+public:
+    static int moduloArithBaseZero(int& value, int addend, int modulo);
+    static int moduloArithBaseOne(int& value, int addend, int modulo);
+
+};
+
+#endif // DATETIME_H
+
+/*
+class DateTime {
+private:
+	static const int mod_milliseconds = 1000;
+	static const int mod_seconds = 60;
+	static const int mod_minutes = 60;
+	static const int mod_hours = 24;
+
+    int millisecond, second, minute, hour, day, month, year;
 	static char line[24];
-	static int add(short& addendMinuend, int addendSubtrahend, short rangeModulo);
-	static short daysInMonth(short month, short year);
-	static bool isLeapYear(short year);
+	static int add(int& addendMinuend, int addendSubtrahend, int rangeModulo);
+	static int daysInMonth(int month, int year);
+	static bool isLeapYear(int year);
 	void addDay(int value);
 	int addMonth(int value);
 	int addYear(int value);
@@ -26,19 +78,20 @@ protected:
 public:
     enum Period { Year, Month, Day, Hour, Minute, Second, Millisecond };
     DateTime();
-    DateTime(short year, short month, short day, short hour, short minute, short second, short millisecond);
-    short getMillisecond() { return millisecond; }
-    short getSecond() { return second; }
-    short getMinute() { return minute; }
-    short getHour() { return hour; }
-    short getDay() { return day; }
-    short getMonth() { return month; }
-    short getYear() { return year; }
+    DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond);
+    int getMillisecond() { return millisecond; }
+    int getSecond() { return second; }
+    int getMinute() { return minute; }
+    int getHour() { return hour; }
+    int getDay() { return day; }
+    int getMonth() { return month; }
+    int getYear() { return year; }
 	char* toString();
-	short adjust(int value, Period period);
+	int adjust(int value, Period period);
 };
 
 #endif // DATETIME_H
+*/
 
 /*
 #ifndef DATETIME_H

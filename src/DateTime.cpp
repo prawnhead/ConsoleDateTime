@@ -4,6 +4,39 @@
 	using namespace std;
 #endif
 
+int DateTime::moduloArithBaseZero(int& value, int addend, int modulo) {
+    // Parameters - input
+    // value  - if valid, value is between zero and (modulo - 1)
+    //          Passed by reference and is an in/out parameter.
+    // addend - can be any value
+    // modulo - can be any value but large expected values are
+    //          1000 for milliseconds and 9999 for years.
+    // Parameter - output. Carry/borrow output from arithmetic operation.
+    int inter = value + addend;
+    // inter will over/underflow when (value + addend) exceeds int int limits.
+    // This will give incorrect results, but is a known limitation.
+    int carry = inter / modulo;
+    // carry cannot overflow but can cause divide-by-zero error if modulo = 0.
+    value = inter % modulo;
+    // value cannot overflow. Produces value in range -(modulo - 1) to (modulo - 1)
+    if (value < 0) {
+        carry--;
+        value += modulo;
+    }
+    // value now in the range zero to (modulo - 1)
+    return carry;
+}
+
+int DateTime::moduloArithBaseOne(int& value, int addend, int modulo) {
+    // Translates to/from zero based arithmetic.
+    value--;
+    int carry = moduloArithBaseZero(value, addend, modulo);
+    value++;
+    return carry;
+}
+
+
+/*
 char DateTime::line[24] = "";
 
 DateTime::DateTime() {
@@ -16,7 +49,7 @@ DateTime::DateTime() {
 	millisecond = 0;
 }
 
-DateTime::DateTime(short year, short month, short day, short hour, short minute, short second, short millisecond) {
+DateTime::DateTime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
     this->year = year;
     this->month = month;
     this->day = day;
@@ -31,7 +64,7 @@ char* DateTime::toString() {
 	return DateTime::line;
 }
 
-int DateTime::add(short& addendMinuend, int addendSubtrahend, short rangeModulo) {
+int DateTime::add(int& addendMinuend, int addendSubtrahend, int rangeModulo) {
 
     int intermediate = addendMinuend + addendSubtrahend;
         // addendMinuend can only be positive.
@@ -55,7 +88,7 @@ int DateTime::add(short& addendMinuend, int addendSubtrahend, short rangeModulo)
     return carry;
 }
 
-short DateTime::adjust(int value, Period period) {
+int DateTime::adjust(int value, Period period) {
 
     int daysAdjusted = 0;
     if (value == 0)
@@ -123,8 +156,8 @@ int DateTime::addYear(int value) {
 }
 
 int DateTime::adjust() {
-    short days = daysInMonth(month, year);
-    short adjust = 0;
+    int days = daysInMonth(month, year);
+    int adjust = 0;
     if (day > days) {
         adjust = days - day;
         day = days;
@@ -132,7 +165,7 @@ int DateTime::adjust() {
     return adjust;
 }
 
-short DateTime::daysInMonth(short month, short year) {
+int DateTime::daysInMonth(int month, int year) {
 // http://en.wikipedia.org/wiki/Month
 	switch (month) {
 	case 1:
@@ -175,10 +208,11 @@ short DateTime::daysInMonth(short month, short year) {
 	return 0;
 }
 
-bool DateTime::isLeapYear(short year) {
+bool DateTime::isLeapYear(int year) {
 	//http://en.wikipedia.org/wiki/Leap_year
 	return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
 }
+*/
 
 /*
 #include "DateTime.h"

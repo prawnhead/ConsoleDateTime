@@ -1,9 +1,3 @@
-#ifndef DATE_H
-#define DATE_H
-
-#include <stdio.h>
-
-
 /**
  * @file    Date.h
  * @author  Chris Murphy <prawnhead@gmail.com>
@@ -32,6 +26,16 @@
  * the 21st century and a few centuries either side of it.
  */
 
+#ifndef DATE_H
+#define DATE_H
+
+#include <stdio.h>
+#include "DateTime.h"
+
+#ifndef ARDUINO
+    #define int short
+#endif
+
 class Date
 {
 
@@ -48,16 +52,16 @@ private:
 private:
 
     // Constants
-    const short Min_Year = 1;
-    const short Max_Year = 9999;
-    const short Min_Month = 1;
-    const short Max_Month = 12;
-    const short Min_Day = 1;
-    const short Year_Modulus = 9999;
-    const short Month_Modulus = 12;
+    static const int Year_Min = 1;
+    static const int Year_Max = 9999;
+    static const int Year_Modulus = 9999;
+    static const int Month_Min = 1;
+    static const int Month_Max = 12;
+    static const int Month_Modulus = 12;
+    static const int Min_Day = 1;
 
     // Properties
-    short year, month, day;
+    int year, month, day;
     static char text[11];
 
 protected:
@@ -69,33 +73,32 @@ public:
 
     // Constructors and destructor
     Date();
-    Date(short year, short month, short day);
+    Date(int year, int month, int day);
 
-    // Property Getters
-    short getDay();
-    short getMonth();
-    short getYear();
+    // Property getters
+    int getDay();
+    int getMonth();
+    int getYear();
     char* toString();
+
     bool isEqual(Date other);
     bool isEqual(Date* other);
     bool isBefore(Date other);
     bool isBefore(Date* other);
     bool isLeapYear();
-    short daysInMonth();
+    int daysInMonth();
 
     // Mutators
-    short correct();
-    short increment(Period period);
-    short decrement(Period period);
+    int correct();
+    int increment(Period period);
+    int decrement(Period period);
     void incrementUnsafe(Period period);
     void decrementUnsafe(Period period);
-    short adjust(Period period, int value);
+    int adjust(Period period, int value);
 
     // Functions
-    static bool isLeapYear(short year);
-    static short daysInMonth(short month, short year);
-    static short moduloArithBaseZero(short& value, short addend, short modulo);
-    static short moduloArithBaseOne(short& value, short addend, short modulo);
+    static bool isLeapYear(int year);
+    static int daysInMonth(int month, int year);
 
 };
 
